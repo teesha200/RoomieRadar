@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #000000 30%, #ee79aa 100%);
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 40px 15px;
+      overflow-y: auto; /* prevent scrollbars from sparkles */
+    }
+
+    .profile-box {
+      width: 500px;
+      max-width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .profile-header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .profile-header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .change-photo-btn {
+      background: #2d2d2d;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: none;
+      height: 70px;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #4e54c8;
+      outline: none;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .preview-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #4e54c8;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: not-allowed;
+      opacity: 0.5;
+      transition: 0.3s;
+    }
+
+    .submit-btn.enabled {
+      cursor: pointer;
+      opacity: 1;
+    }
+
+    /* sparkle layer */
+    #sparkle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #111;
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    select:focus {
+      outline: none;
+      border: 1px solid #ee79aa;
+      background: #1a1a1a;
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="sparkle-canvas"></canvas>
+
+  <div class="profile-box">
+    <div class="profile-header">
+      <div class="user-info">
+        <img id="profile-photo" src="https://via.placeholder.com/60" alt="Profile">
+        <div>
+          <h2 id="profile-username">Loading...</h2>
+          <p id="profile-email">Loading...</p>
+        </div>
+      </div>
+      <button class="change-photo-btn" id="change-photo-btn">Change Photo</button>
+      <input type="file" id="photo-input" accept="image/*" style="display: none;">
+    </div>
+
+    <form id="profileForm">
+      <div class="form-group">
+        <label for="name">Username</label>
+        <input type="text" id="name" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" placeholder="+91 9876543210" required>
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Short description..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" placeholder="Write something about yourself..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="pronouns">Pronouns</label>
+        <select id="pronouns" name="pronouns" required>
+          <option value="">-- Select Pronouns --</option>
+          <option value="she/her">She/Her</option>
+          <option value="he/him">He/Him</option>
+          <option value="they/them">They/Them</option>
+          <option value="she/they">She/They</option>
+          <option value="he/they">He/They</option>
+          <option value="other">Other</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
+
+      </div>
+
+      <div class="form-group">
+        <label for="hobbies">Hobbies</label>
+        <input type="text" id="hobbies" placeholder="Reading, Hiking, Coding..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="photos">Upload Exactly 4 Profile Photos</label>
+        <input type="file" id="photos" accept="image/*" multiple required>
+        <div id="preview" class="preview-grid"></div>
+      </div>
+
+      <button type="submit" class="submit-btn" disabled>Save Profile</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("profileForm");
+    const inputs = form.querySelectorAll("input, textarea");
+    const photosInput = document.getElementById("photos");
+    const previewDiv = document.getElementById("preview");
+    const submitBtn = document.querySelector(".submit-btn");
+    const changePhotoBtn = document.getElementById("change-photo-btn");
+    const photoInput = document.getElementById("photo-input");
+    const profilePhoto = document.getElementById("profile-photo");
+
+    // ✅ Load user profile from backend
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/profile/me");
+        const user = await res.json();
+
+        // Fill profile UI
+        document.getElementById("profile-username").innerText = user.username;
+        document.getElementById("profile-email").innerText = user.email;
+
+        document.getElementById("name").value = user.username;
+        document.getElementById("email").value = user.email;
+        document.getElementById("phone").value = user.phone || "";
+        document.getElementById("dob").value = user.dob || "";
+        document.getElementById("description").value = user.description || "";
+        document.getElementById("bio").value = user.bio || "";
+        document.getElementById("pronouns").value = user.pronouns || "";
+        document.getElementById("hobbies").value = user.hobbies || "";
+
+        if (user.photo) {
+          profilePhoto.src = user.photo;
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    });
+
+    // ✅ Change photo functionality
+    changePhotoBtn.addEventListener("click", () => {
+      photoInput.click();
+    });
+
+    photoInput.addEventListener("change", () => {
+      const file = photoInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          profilePhoto.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // ✅ Validation
+    function validateForm() {
+      let valid = true;
+      inputs.forEach(input => {
+        if (!input.value.trim() && !input.readOnly) valid = false;
+      });
+
+      if (photosInput.files.length !== 4) {
+        valid = false;
+      }
+
+      if (valid) {
+        submitBtn.disabled = false;
+        submitBtn.classList.add("enabled");
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.remove("enabled");
+      }
+    }
+
+    photosInput.addEventListener("change", () => {
+      previewDiv.innerHTML = "";
+      const files = photosInput.files;
+      if (files.length !== 4) {
+        previewDiv.innerHTML = "<p style='color:red;'>Please upload exactly 4 photos.</p>";
+        validateForm();
+        return;
+      }
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("preview-img");
+          previewDiv.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      validateForm();
+    });
+
+    inputs.forEach(input => {
+      input.addEventListener("input", validateForm);
+    });
+
+    form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (submitBtn.disabled) {
+    alert("Please fill all fields and upload exactly 4 photos.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("phone", document.getElementById("phone").value);
+  formData.append("dob", document.getElementById("dob").value);
+  formData.append("description", document.getElementById("description").value);
+  formData.append("bio", document.getElementById("bio").value);
+  formData.append("pronouns", document.getElementById("pronouns").value);
+  formData.append("hobbies", document.getElementById("hobbies").value);
+
+  // Append main profile photo
+  if (photoInput.files[0]) {
+    formData.append("photo", photoInput.files[0]);
+  }
+
+  // Append exactly 4 gallery photos
+  Array.from(photosInput.files).forEach((file, index) => {
+    formData.append("photos", file);
+  });
+
+  try {
+    const res = await fetch("/profile/update", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      // ✅ Redirect to profile view page
+      window.location.href = "profile_view.html";
+    } else {
+      alert("Failed to update profile");
+    }
+  } catch (err) {
+    console.error("Update error:", err);
+    alert("Something went wrong");
+  }
+});
+</script>
+
+  <!-- Sparkle Cursor -->
+  <script>
+    const canvas = document.getElementById("sparkle-canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const sparkles = [];
+    function sparkle(x, y) {
+      sparkles.push({ x, y, alpha: 1, size: Math.random() * 3 + 2 });
+    }
+
+    document.addEventListener("mousemove", e => {
+      for (let i = 0; i < 3; i++) sparkle(e.clientX, e.clientY);
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = sparkles.length - 1; i >= 0; i--) {
+        const s = sparkles[i];
+        ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        s.y -= 0.5;
+        s.alpha -= 0.02;
+        if (s.alpha <= 0) sparkles.splice(i, 1);
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoomieRadar - Login</title>
+  <link rel="stylesheet" href="/css/login.css">
+  <!-- Boxicons for icons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Left box: Login form -->
+    <div class="form-box login">
+      <h2>Sign In</h2>
+      <form action="http://localhost:3000/auth/login" method="POST">
+        <div class="input-box">
+          <i class='bx bx-user'></i>
+          <input type="email" name="email" required>
+          <label>Email</label>
+        </div>
+        <div class="input-box">
+          <i class='bx bx-lock-alt'></i>
+          <input type="password" name="password" required>
+          <label>Password</label>
+        </div>
+        <div class="options">
+          <a href="#">Forgot your password?</a>
+        </div>
+        <button type="submit" class="btn">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Right box: Welcome message -->
+    <div class="form-box register">
+      <h2>Hello, Friend!</h2>
+      <p>Register with your personal details to use all features of RoomieRadar.</p>
+      <a href="/signup.html" class="btn">Sign Up</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,425 @@
+/* ----------------------------------------------------------------
+   1. FONT IMPORTS & GLOBAL VARIABLES
+   ---------------------------------------------------------------- */
+
+/* Using Google Fonts to simulate the handwritten and script styles */
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Permanent+Marker&family=Inter:wght@400;700&display=swap');
+
+:root {
+    --font-body: 'Inter', sans-serif;
+    --font-handwriting: 'Kalam', cursive;
+    --font-script: 'Permanent Marker', cursive; 
+    --page-bg: #fefefe;
+    --line-color: #ccc;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --ring-color: #666;
+    --ink-color: #333;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: #e0d9cc; /* Soft background color outside the notebook */
+    margin: 0;
+    /* --- EDITED FOR ALIGNMENT --- */
+    display: flex; 
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* CRITICAL: Align content to the top vertically */
+    min-height: 100vh;
+    padding-top: 50px; /* Added padding at the top for a little space from the screen edge */
+    padding-bottom: 20px;
+    overflow: hidden; /* Prevent body scroll due to rotations */
+}
+
+/* ----------------------------------------------------------------
+   2. NOTEBOOK STRUCTURE (GRID AND PAGES)
+   ---------------------------------------------------------------- */
+
+.notebook-container {
+    display: grid;
+    /* CRITICAL FIX: Ensure grid items start precisely at the top edge of the container */
+    align-items: start;
+    grid-template-columns: 1fr 20px 1fr; /* Left Page | Binding | Right Page */
+    width: 1100px; 
+    height: 700px;
+    box-shadow: 0 15px 40px var(--shadow-color);
+    position: relative;
+    border-radius: 5px;
+}
+
+.page {
+    /* CRITICAL: Must be relative for absolute children to work correctly */
+    position: relative; 
+    height: 100%; /* ENSURE PAGE FILLS CONTAINER HEIGHT */
+    margin: 0; /* Ensure no default margin pushes it down */
+    padding: 30px;
+    background-color: var(--page-bg);
+    overflow: hidden;
+    
+    /* Simulate notebook lines */
+    background-image: 
+        repeating-linear-gradient(to bottom, transparent, transparent 20px, var(--line-color) 20px, var(--line-color) 21px);
+    background-size: 100% 21px;
+}
+
+/* Specific page styling for column placement and rounded corners */
+.left-page {
+    grid-column: 1; 
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+.right-page {
+    grid-column: 3;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+
+/* --- Binding/Spine --- */
+.binding {
+    grid-column: 2; /* Middle column */
+    height: 100%; /* ENSURE BINDING FILLS CONTAINER HEIGHT */
+    margin: 0; /* Ensure no default margin pushes it down */
+    background-color: #f7f7f7; 
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.ring {
+    width: 15px;
+    height: 15px;
+    background-color: var(--ring-color);
+    border-radius: 50%;
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* ----------------------------------------------------------------
+   3. TYPOGRAPHY AND TEXT PLACEMENT
+   ---------------------------------------------------------------- */
+
+.name-label, .section-title, .text-box h4, .vertical-text, .moodboard-label, .love-label {
+    font-family: var(--font-handwriting);
+    color: var(--ink-color);
+    z-index: 60; 
+}
+
+/* Left Page Titles (Final Coords) */
+.name-label {
+    font-size: 1.2em;
+    position: absolute;
+    top: 25px;
+    left: 40px; 
+}
+
+.name-large {
+    font-family: var(--font-script);
+    font-size: 4.5em;
+    line-height: 0.9;
+    color: var(--ink-color);
+    position: absolute;
+    top: 50px;
+    left: 30px; 
+    z-index: 60;
+}
+
+/* Right Page Titles (Final Coords) */
+.section-title {
+    font-family: var(--font-script);
+    font-size: 3em;
+    position: absolute;
+    top: 30px; 
+    right: 50px;
+    letter-spacing: 2px;
+}
+
+.vertical-text {
+    position: absolute;
+    bottom: 50px;
+    left: -10px;
+    transform: rotate(-90deg);
+    transform-origin: bottom left;
+    font-size: 1.5em;
+    color: #4c4c4c;
+    z-index: 60;
+}
+
+.moodboard-label {
+    position: absolute;
+    bottom: 10px;
+    right: 180px; 
+    left: auto;
+    font-size: 1.8em;
+    color: #4c4c4c;
+    transform: rotate(-5deg);
+    z-index: 60;
+}
+
+.love-label {
+    position: absolute;
+    bottom: 80px;
+    right: 30px;
+    font-size: 1.2em;
+    color: #4c4c4c;
+    transform: rotate(10deg);
+    z-index: 60;
+}
+
+/* --- Text Boxes (Final Coords) */
+.text-box {
+    position: absolute;
+    padding: 15px;
+    background-color: #fffaf0; 
+    border: 1px solid #ddd;
+    box-shadow: 3px 3px 8px var(--shadow-color);
+    font-family: var(--font-body);
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: #4c4c4c;
+    z-index: 45; 
+}
+
+/* Left Page Text Boxes */
+.about-text {
+    width: 220px;
+    /* Adjusted top to move content up */
+    top: 150px; 
+    left: 40px; 
+    transform: rotate(-5deg);
+}
+
+.hobby-box {
+    width: 260px;
+    bottom: 100px;
+    right: 40px;
+    background-color: #f7f7e0; 
+    transform: rotate(4deg);
+    border-radius: 2px;
+}
+
+.hobby-box h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Right Page Text Boxes */
+.affirmation-box {
+    width: 200px;
+    /* Bottom-Left quadrant of the right page */
+    bottom: 100px;
+    left: 40px; 
+    right: auto;
+    transform: rotate(-3deg);
+    border-radius: 5px;
+    z-index: 45; 
+}
+
+.affirmation-box h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+
+
+/* ----------------------------------------------------------------
+   4. PHOTO PLACEMENT AND STYLING
+   ---------------------------------------------------------------- */
+
+.photo {
+    position: absolute;
+    object-fit: cover;
+    box-shadow: 5px 5px 15px var(--shadow-color);
+    transform-origin: center;
+    border: 1px solid #fff; 
+    z-index: 30; /* Default photo z-index */
+}
+
+/* Left Page Photos (Final Coords) */
+.photo-top-right {
+    width: 180px;
+    height: 250px;
+    /* Adjusted top to move content up */
+    top: 130px; 
+    right: 50px;
+    transform: rotate(3deg);
+    z-index: 35;
+}
+
+.photo-bottom-left {
+    width: 200px;
+    height: 280px;
+    bottom: 50px;
+    left: 40px;
+    transform: rotate(-7deg);
+}
+
+/* Right Page Photos (Final Coords) */
+.photo-right-top {
+    width: 130px;
+    height: 200px;
+    /* Adjusted top to move content up */
+    top: 80px;
+    left: 40px; 
+    transform: rotate(-2deg);
+}
+
+.photo-mirror {
+    width: 160px;
+    height: 220px;
+    /* Adjusted top to move content up */
+    top: 100px; 
+    right: 40px; 
+    left: auto;
+    transform: rotate(8deg);
+    z-index: 30; 
+}
+
+.photo-right-main {
+    width: 260px;
+    height: 360px;
+    /* Adjusted top to move content up */
+    top: 230px; 
+    left: 100px;
+    transform: rotate(5deg);
+    z-index: 25; /* Lowest photo layer */
+}
+
+.photo-clothes {
+    width: 180px;
+    height: 200px;
+    /* Adjusted top to move content up */
+    top: 380px; 
+    right: 40px;
+    transform: rotate(-10deg);
+    z-index: 35;
+}
+
+/* ----------------------------------------------------------------
+   5. DECORATIVE ELEMENTS (Final Coords)
+   ---------------------------------------------------------------- */
+
+.decorative-element {
+    position: absolute;
+    z-index: 70; /* Ensure these small elements layer on top of everything */
+}
+
+/* Left Page Decorations */
+
+.sticker-blue {
+    width: 120px;
+    height: 120px;
+    background-color: #8cadda; 
+    border-radius: 50%;
+    clip-path: polygon(50% 0%, 90% 10%, 100% 40%, 80% 80%, 50% 100%, 10% 80%, 0% 40%, 10% 10%); 
+    /* Adjusted top to move content up */
+    top: 230px; 
+    left: 10px;
+    opacity: 0.7;
+    z-index: 1; 
+    transform: rotate(15deg);
+}
+
+.window-sun {
+    width: 80px;
+    height: 80px;
+    border: 3px solid #f6b31c;
+    background-color: #ffda79;
+    /* Adjusted top to move content up */
+    top: 340px;
+    right: 200px;
+    transform: rotate(-10deg);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    z-index: 70;
+}
+/* Grid lines for the window panes */
+.window-sun::before, .window-sun::after {
+    content: '';
+    background-color: #f6b31c;
+    position: absolute;
+    z-index: 75;
+}
+.window-sun::before {
+    width: 100%;
+    height: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.window-sun::after {
+    width: 3px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Pink marker stroke under hobby */
+.hobby-box::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    width: 100px;
+    height: 10px;
+    background-color: rgba(255, 192, 203, 0.7); /* Pink */
+    transform: rotate(5deg);
+    z-index: -1;
+}
+
+/* Right Page Decorations */
+
+/* Blue Tape (top of left photo) */
+.tape-1 {
+    width: 70px;
+    height: 15px;
+    background-color: #a4e1d3; /* Mint green tape */
+    /* Adjusted top to move content up */
+    top: 70px;
+    left: 60px; 
+    transform: rotate(-5deg);
+    z-index: 70;
+}
+
+/* Star Sticker (top right corner) */
+.stars {
+    width: 40px;
+    height: 40px;
+    /* Adjusted top to move content up */
+    top: 20px;
+    right: 40px;
+    background-color: #49b380; 
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    transform: rotate(-15deg);
+    opacity: 0.9;
+    z-index: 70;
+}
+
+/* Envelope Decal */
+.envelope {
+    width: 70px;
+    height: 50px;
+    bottom: 180px; 
+    left: 300px;
+    right: auto;
+    background-color: #e6e6e6; 
+    border: 2px solid #ccc;
+    transform: rotate(-10deg);
+    z-index: 70;
+}
+.envelope::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    background-color: #c9c9c9;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    top: 0;
+}
