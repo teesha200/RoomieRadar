@@ -1,407 +1,441 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Profile</title>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>RoomieRadar | My Profile</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+
+    tailwind.config = {
+
+      theme: {
+
+        extend: {
+
+          colors: {
+
+            primary: '#e75480',
+
+            darkBg: '#0f0a1e',
+
+            textMuted: '#b0b0b0',
+
+          },
+
+        },
+
+      },
+
+    };
+
+  </script>
+
   <style>
+
     body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #000000 30%, #ee79aa 100%);
+
+      background: linear-gradient(180deg, #3b0a45, #000);
+
       color: white;
+
+      font-family: 'Inter', sans-serif;
+
       display: flex;
+
       justify-content: center;
-      padding: 40px 15px;
-      overflow-y: auto; /* prevent scrollbars from sparkles */
+
+      align-items: center;
+
+      min-height: 100vh;
+
+      overflow: hidden;
+
     }
 
-    .profile-box {
-      width: 500px;
-      max-width: 100%;
+    .card {
+
+      background: rgba(255, 255, 255, 0.08);
+
+      backdrop-filter: blur(20px);
+
+      border-radius: 30px;
+
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+
+      width: 370px;
+
+      height: 600px;
+
+      padding: 20px;
+
       position: relative;
-      z-index: 2;
+
+      overflow-y: auto;
+
+      scrollbar-width: thin;
+
+      scrollbar-color: #e75480 #2e073f;
+
     }
 
-    .profile-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 25px;
-    }
+    input, textarea, select {
 
-    .profile-header .user-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+      background: rgba(255,255,255,0.1);
 
-    .profile-header img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .change-photo-btn {
-      background: #2d2d2d;
       border: none;
-      padding: 8px 15px;
+
+      outline: none;
+
+      color: white;
+
       border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-    }
 
-    h2 {
-      margin-bottom: 10px;
-    }
+      padding: 6px 10px;
 
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #ccc;
-    }
-
-    input, textarea {
       width: 100%;
-      padding: 12px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: white;
-      font-size: 14px;
-    }
 
-    textarea {
       resize: none;
-      height: 70px;
+
     }
 
-    input:focus, textarea:focus {
-      border-color: #4e54c8;
-      outline: none;
+    select option {
+
+      color: black;
+
     }
 
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 10px;
-    }
+    button:disabled {
 
-    .preview-img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+      opacity: 0.6;
 
-    .submit-btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #4e54c8;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
       cursor: not-allowed;
-      opacity: 0.5;
-      transition: 0.3s;
-    }
 
-    .submit-btn.enabled {
-      cursor: pointer;
-      opacity: 1;
-    }
-
-    /* sparkle layer */
-    #sparkle-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-    }
-    select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      background: #111;
-      color: white;
-      font-size: 1rem;
-      margin-bottom: 15px;
-    }
-
-    select:focus {
-      outline: none;
-      border: 1px solid #ee79aa;
-      background: #1a1a1a;
     }
 
   </style>
-</head>
-<body>
-  <canvas id="sparkle-canvas"></canvas>
 
-  <div class="profile-box">
-    <div class="profile-header">
-      <div class="user-info">
-        <img id="profile-photo" src="https://via.placeholder.com/60" alt="Profile">
-        <div>
-          <h2 id="profile-username">Loading...</h2>
-          <p id="profile-email">Loading...</p>
-        </div>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <!-- Header -->
+
+    <div class="text-center mb-5">
+
+      <div class="flex flex-col items-center mt-2">
+
+        <label for="photoUpload" class="cursor-pointer">
+
+          <img id="profile-photo" src="../static/images/default-avatar.png" alt="Profile"
+
+               class="w-24 h-24 rounded-full border-4 border-primary shadow-lg object-cover">
+
+        </label>
+
+        <input type="file" id="photoUpload" class="hidden" accept="image/*">
+
+        <h2 id="profile-username" class="text-xl font-semibold mt-3">Loading...</h2>
+
+        <p id="profile-email" class="text-sm text-textMuted">Loading...</p>
+
       </div>
-      <button class="change-photo-btn" id="change-photo-btn">Change Photo</button>
-      <input type="file" id="photo-input" accept="image/*" style="display: none;">
+
     </div>
 
-    <form id="profileForm">
-      <div class="form-group">
-        <label for="name">Username</label>
-        <input type="text" id="name" readonly>
-      </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" readonly>
-      </div>
 
-      <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" placeholder="+91 9876543210" required>
-      </div>
+    <!-- Editable Fields -->
 
-      <div class="form-group">
-        <label for="dob">Date of Birth</label>
-        <input type="date" id="dob" required>
-      </div>
+    <div class="space-y-3 text-sm pb-5">
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" placeholder="Short description..." required></textarea>
-      </div>
+      <div>
 
-      <div class="form-group">
-        <label for="bio">Bio</label>
-        <textarea id="bio" placeholder="Write something about yourself..." required></textarea>
-      </div>
+        <label class="block text-textMuted mb-1">Pronouns</label>
 
-      <div class="form-group">
-        <label for="pronouns">Pronouns</label>
-        <select id="pronouns" name="pronouns" required>
+        <select id="profile-pronouns">
+
           <option value="">-- Select Pronouns --</option>
-          <option value="she/her">She/Her</option>
-          <option value="he/him">He/Him</option>
-          <option value="they/them">They/Them</option>
-          <option value="she/they">She/They</option>
-          <option value="he/they">He/They</option>
+
+          <option value="she/her">She / Her</option>
+
+          <option value="he/him">He / Him</option>
+
+          <option value="they/them">They / Them</option>
+
           <option value="other">Other</option>
-          <option value="prefer-not-to-say">Prefer not to say</option>
+
         </select>
 
       </div>
 
-      <div class="form-group">
-        <label for="hobbies">Hobbies</label>
-        <input type="text" id="hobbies" placeholder="Reading, Hiking, Coding..." required>
+
+
+      <div>
+
+        <label class="block text-textMuted mb-1">Bio</label>
+
+        <textarea id="profile-bio" rows="2" placeholder="Write a short bio..."></textarea>
+
       </div>
 
-      <div class="form-group">
-        <label for="photos">Upload Exactly 4 Profile Photos</label>
-        <input type="file" id="photos" accept="image/*" multiple required>
-        <div id="preview" class="preview-grid"></div>
+
+
+      <div>
+
+        <label class="block text-textMuted mb-1">Description</label>
+
+        <textarea id="profile-description" rows="2" placeholder="Describe yourself..."></textarea>
+
       </div>
 
-      <button type="submit" class="submit-btn" disabled>Save Profile</button>
-    </form>
+
+
+      <div>
+
+        <label class="block text-textMuted mb-1">Hobbies</label>
+
+        <input id="profile-hobbies" placeholder="e.g., Reading, Painting, Hiking" />
+
+      </div>
+
+
+
+      <div>
+
+        <label class="block text-textMuted mb-1">Status</label>
+
+        <select id="profile-status">
+
+          <option value="">-- Select --</option>
+
+          <option value="Job">Job</option>
+
+          <option value="Student">Student</option>
+
+        </select>
+
+      </div>
+
+
+
+      <div id="occupation-field" class="hidden">
+
+        <label class="block text-textMuted mb-1">Occupation / Course</label>
+
+        <input id="profile-occupation" placeholder="e.g., Software Engineer or B.Tech CSE" />
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Save Button at bottom -->
+
+    <div class="mt-6 flex justify-center">
+
+      <button id="saveBtn" class="bg-primary text-white px-5 py-2 rounded-full shadow-lg text-sm font-semibold w-full">
+
+        💾 Save
+
+      </button>
+
+    </div>
+
   </div>
 
-  <script>
-    const form = document.getElementById("profileForm");
-    const inputs = form.querySelectorAll("input, textarea");
-    const photosInput = document.getElementById("photos");
-    const previewDiv = document.getElementById("preview");
-    const submitBtn = document.querySelector(".submit-btn");
-    const changePhotoBtn = document.getElementById("change-photo-btn");
-    const photoInput = document.getElementById("photo-input");
-    const profilePhoto = document.getElementById("profile-photo");
 
-    // ✅ Load user profile from backend
-    document.addEventListener("DOMContentLoaded", async () => {
+
+  <script>
+
+    const API_BASE = "http://localhost:3000/profile";
+
+
+
+    async function loadProfile() {
+
       try {
-        const res = await fetch("/profile/me");
-        const user = await res.json();
 
-        // Fill profile UI
-        document.getElementById("profile-username").innerText = user.username;
-        document.getElementById("profile-email").innerText = user.email;
+        const res = await fetch(`${API_BASE}/me`, {
 
-        document.getElementById("name").value = user.username;
-        document.getElementById("email").value = user.email;
-        document.getElementById("phone").value = user.phone || "";
-        document.getElementById("dob").value = user.dob || "";
-        document.getElementById("description").value = user.description || "";
-        document.getElementById("bio").value = user.bio || "";
-        document.getElementById("pronouns").value = user.pronouns || "";
-        document.getElementById("hobbies").value = user.hobbies || "";
+          method: "GET",
 
-        if (user.photo) {
-          profilePhoto.src = user.photo;
+          credentials: "include", // ensures session cookie sent
+
+        });
+
+
+
+        if (!res.ok) {
+
+          const errText = await res.text();
+
+          console.error("Server Error:", errText);
+
+          throw new Error("Failed to fetch profile");
+
         }
+
+
+
+        const data = await res.json();
+
+        console.log("Loaded profile:", data);
+
+
+
+        document.getElementById("profile-username").textContent = data.username || "User";
+
+        document.getElementById("profile-email").textContent = data.email || "No email";
+
+        document.getElementById("profile-pronouns").value = data.pronouns || "";
+
+        document.getElementById("profile-bio").value = data.bio || "";
+
+        document.getElementById("profile-description").value = data.description || "";
+
+        document.getElementById("profile-hobbies").value = data.hobbies || "";
+
+        document.getElementById("profile-status").value = data.status || "";
+
+        document.getElementById("profile-occupation").value = data.occupation || "";
+
+
+
+        if (data.photo) document.getElementById("profile-photo").src = data.photo;
+
+
+
+        toggleOccupationField(data.status);
+
       } catch (err) {
-        console.error("Error fetching profile:", err);
-      }
-    });
 
-    // ✅ Change photo functionality
-    changePhotoBtn.addEventListener("click", () => {
-      photoInput.click();
-    });
+        console.error("❌ Load error:", err);
 
-    photoInput.addEventListener("change", () => {
-      const file = photoInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          profilePhoto.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+        document.getElementById("profile-username").textContent = "Error Loading";
 
-    // ✅ Validation
-    function validateForm() {
-      let valid = true;
-      inputs.forEach(input => {
-        if (!input.value.trim() && !input.readOnly) valid = false;
-      });
+        document.getElementById("profile-email").textContent = "Try again later";
 
-      if (photosInput.files.length !== 4) {
-        valid = false;
       }
 
-      if (valid) {
-        submitBtn.disabled = false;
-        submitBtn.classList.add("enabled");
-      } else {
-        submitBtn.disabled = true;
-        submitBtn.classList.remove("enabled");
-      }
     }
 
-    photosInput.addEventListener("change", () => {
-      previewDiv.innerHTML = "";
-      const files = photosInput.files;
-      if (files.length !== 4) {
-        previewDiv.innerHTML = "<p style='color:red;'>Please upload exactly 4 photos.</p>";
-        validateForm();
-        return;
+
+
+    function toggleOccupationField(value) {
+
+      document.getElementById("occupation-field").classList.toggle("hidden", !value);
+
+    }
+
+
+
+    document.getElementById("profile-status").addEventListener("change", (e) => {
+
+      toggleOccupationField(e.target.value);
+
+    });
+
+
+
+    document.getElementById("photoUpload").addEventListener("change", (e) => {
+
+      const file = e.target.files[0];
+
+      if (file) document.getElementById("profile-photo").src = URL.createObjectURL(file);
+
+    });
+
+
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+
+      const formData = new FormData();
+
+      formData.append("pronouns", document.getElementById("profile-pronouns").value);
+
+      formData.append("bio", document.getElementById("profile-bio").value);
+
+      formData.append("description", document.getElementById("profile-description").value);
+
+      formData.append("hobbies", document.getElementById("profile-hobbies").value);
+
+      formData.append("status", document.getElementById("profile-status").value);
+
+      formData.append("occupation", document.getElementById("profile-occupation").value);
+
+
+
+      const photo = document.getElementById("photoUpload").files[0];
+
+      if (photo) formData.append("photo", photo);
+
+
+
+      const btn = document.getElementById("saveBtn");
+
+      btn.disabled = true;
+
+      btn.textContent = "Saving...";
+
+
+
+      try {
+
+        const res = await fetch(`${API_BASE}/update`, {
+
+          method: "POST",
+
+          credentials: "include",
+
+          body: formData,
+
+        });
+
+
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "Failed");
+
+
+
+        alert("✅ Profile updated!");
+
+        loadProfile();
+
+      } catch (err) {
+
+        console.error("Save failed:", err);
+
+        alert("❌ " + err.message);
+
+      } finally {
+
+        btn.disabled = false;
+
+        btn.textContent = "💾 Save";
+
       }
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.classList.add("preview-img");
-          previewDiv.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      });
-      validateForm();
+
     });
 
-    inputs.forEach(input => {
-      input.addEventListener("input", validateForm);
-    });
 
-    form.addEventListener("submit", async (e) => {
-  e.preventDefault();
 
-  if (submitBtn.disabled) {
-    alert("Please fill all fields and upload exactly 4 photos.");
-    return;
-  }
+    loadProfile();
 
-  const formData = new FormData();
-  formData.append("phone", document.getElementById("phone").value);
-  formData.append("dob", document.getElementById("dob").value);
-  formData.append("description", document.getElementById("description").value);
-  formData.append("bio", document.getElementById("bio").value);
-  formData.append("pronouns", document.getElementById("pronouns").value);
-  formData.append("hobbies", document.getElementById("hobbies").value);
-
-  // Append main profile photo
-  if (photoInput.files[0]) {
-    formData.append("photo", photoInput.files[0]);
-  }
-
-  // Append exactly 4 gallery photos
-  Array.from(photosInput.files).forEach((file, index) => {
-    formData.append("photos", file);
-  });
-
-  try {
-    const res = await fetch("/profile/update", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (res.ok) {
-      // ✅ Redirect to profile view page
-      window.location.href = "profile_view.html";
-    } else {
-      alert("Failed to update profile");
-    }
-  } catch (err) {
-    console.error("Update error:", err);
-    alert("Something went wrong");
-  }
-});
-</script>
-
-  <!-- Sparkle Cursor -->
-  <script>
-    const canvas = document.getElementById("sparkle-canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const sparkles = [];
-    function sparkle(x, y) {
-      sparkles.push({ x, y, alpha: 1, size: Math.random() * 3 + 2 });
-    }
-
-    document.addEventListener("mousemove", e => {
-      for (let i = 0; i < 3; i++) sparkle(e.clientX, e.clientY);
-    });
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = sparkles.length - 1; i >= 0; i--) {
-        const s = sparkles[i];
-        ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
-        s.y -= 0.5;
-        s.alpha -= 0.02;
-        if (s.alpha <= 0) sparkles.splice(i, 1);
-      }
-      requestAnimationFrame(animate);
-    }
-    animate();
   </script>
+
 </body>
+
 </html>

@@ -3,64 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olivia Wilson - About Me</title>
-    <link rel="stylesheet" href="css/profile_view.css">
+    <title>Rounded Card UI</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom config for ultra-rounded corners and pastel pink BG */
+        :root {
+            --pastel-pink: #FFE4E1; /* Misty Rose */
+            --dark-background: #0D1117; /* Dark background color (if needed for contrast, but sticking to pink now) */
+        }
+        .ultra-rounded {
+            border-radius: 40px; /* Custom large radius */
+        }
+        .super-rounded {
+            border-radius: 60px; /* Even larger radius for main cards */
+        }
+        /* Inter font for modern look */
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: var(--pastel-pink);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .ui-container {
+            /* Simulates the desktop/large window view where multiple cards overlap */
+            position: relative;
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            /* Allow children (cards) to position absolutely for the overlapping effect */
+        }
+        /* Responsive grid adjustments */
+        @media (max-width: 1024px) {
+            .ui-container {
+
+                grid-template-columns: 1fr;
+
+                gap: 40px;
+
+                display: flex; /* Switch to simple flex on mobile */
+
+                flex-direction: column;
+
+                align-items: center;
+
+            }
+
+            .card-col-1, .card-col-2, .card-col-3 {
+
+                width: 95%;
+
+                max-width: 450px; /* Constrain card width */
+
+            }
+
+        }
+
+        /* Specific card positioning to simulate the image's dynamic layout */
+
+        .card-col-1 {
+
+            grid-column: 1 / 2;
+
+        }
+
+        .card-col-2 {
+
+            grid-column: 2 / 3;
+
+            /* On desktop, shift the main card slightly left to overlap */
+
+            transform: translateX(-20px);
+
+            z-index: 10;
+
+        }
+
+        .card-col-3 {
+
+            grid-column: 3 / 4;
+
+            /* On desktop, shift the right column slightly left */
+
+            transform: translateX(-40px);
+
+        }
+
+    </style>
+
+    <script>
+
+        tailwind.config = {
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        'pastel-pink': '#FFE4E1',
+
+                        'accent-blue': '#1D9BF0',
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
 </head>
+
 <body>
-    <div class="notebook-container">
-        <div class="binding">
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
+
+<div class="ui-container">
+
+    <!-- Column 1: Groups and Small Profiles -->
+
+    <div class="card-col-1 space-y-5">
+
+        <!-- Small Initial Profile Card (Top Left) -->
+
+        <div class="bg-white ultra-rounded shadow-xl p-4 w-60 h-28 flex items-center transform -translate-x-10">
+
+            <div class="w-12 h-12 flex items-center justify-center text-xl font-semibold bg-green-500 text-white rounded-full">E</div>
+
+            <div class="ml-4">
+
+                <p class="font-bold text-sm">Elena Pena</p>
+
+                <p class="text-xs text-gray-500">2 friends on IRL</p>
+
+            </div>
+
         </div>
 
-        <div class="page left-page">
-            <h3 class="name-label">MY NAME IS</h3>
-            <h1 class="name-large">Olivia Wilson</h1>
-            
-            <div class="text-box about-text">
-                <p>I'm a passionate creator and visual storyteller, with a keen eye for fashion and an adventurous spirit. I love crafting photo collages that weave together color, texture, and emotion.</p>
-            </div>
-            
-            <img src="img/olivia1.jpg" alt="Olivia posing" class="photo photo-top-right">
-            <img src="img/olivia2.jpg" alt="Olivia sitting" class="photo photo-bottom-left">
+        <!-- Group List Card -->
 
-            <div class="text-box hobby-box">
-                <h4 class="hobby-title">My hobby</h4>
-                <p>Each piece I create is a testament to my belief in the power of visual art to express individuality and evoke feeling. Join me on this journey as I explore the endless possibilities of style and creativity.</p>
+        <div class="bg-white super-rounded shadow-2xl p-6 space-y-4">
+
+            <div class="flex justify-between items-center mb-4">
+
+                <h2 class="text-xl font-bold">Groups</h2>
+
+                <div class="text-sm font-semibold text-blue-600 cursor-pointer">See All</div>
+
             </div>
 
-            <div class="decorative-element sticker-blue"></div>
-            <div class="decorative-element window-sun"></div>
-            <p class="vertical-text">Inspiration</p>
+            <!-- Group Item 1: Lightning Fast Team -->
+
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center">
+
+                    <div class="w-10 h-10 flex items-center justify-center text-sm font-semibold bg-blue-500 text-white rounded-full">L</div>
+
+                    <div class="ml-3">
+
+                        <p class="font-semibold text-sm">Lightning Fast Team</p>
+
+                        <p class="text-xs text-gray-500">256 members</p>
+
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-1 text-xs font-semibold bg-accent-blue text-white rounded-xl shadow-md hover:bg-blue-700 transition">Join</button>
+
+            </div>
+
+            <!-- Group Item 2: Would You Rather -->
+
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center">
+
+                    <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-sm">
+
+                        <span class="text-2xl" role="img" aria-label="question mark">❓</span>
+
+                    </div>
+
+                    <div class="ml-3">
+
+                        <p class="font-semibold text-sm">Would You Rather</p>
+
+                        <p class="text-xs text-gray-500">634 friends are members</p>
+
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-1 text-xs font-semibold bg-accent-blue text-white rounded-xl shadow-md hover:bg-pinkS-700 transition">Join</button>
+
+            </div>
+
+            <!-- Group Item 3: Climate Change -->
+
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center">
+
+                    <div class="w-10 h-10 flex items-center justify-center text-sm font-semibold bg-green-700 rounded-full">
+
+                        <span class="text-xl" role="img" aria-label="earth">🌍</span>
+
+                    </div>
+
+                    <div class="ml-3">
+
+                        <p class="font-semibold text-sm">Climate Change</p>
+
+                        <p class="text-xs text-gray-500">256 members</p>
+
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-1 text-xs font-semibold bg-accent-blue text-white rounded-xl shadow-md hover:bg-pink-700 transition">Join</button>
+
+            </div>
+
         </div>
 
-        <div class="page right-page">
-            <h2 class="section-title">ABOUT ME</h2>
+    </div>
 
-            <img src="img/olivia3.jpg" alt="Olivia distant shot" class="photo photo-right-top">
-            <img src="img/mirror.jpg" alt="Mirror and decor" class="photo photo-mirror">
-            <img src="img/olivia4.jpg" alt="Olivia close-up" class="photo photo-right-main">
-            <img src="img/clothes.jpg" alt="Folded clothes" class="photo photo-clothes">
+    <!-- Column 2: Main Profile Card -->
 
-            <div class="text-box affirmation-box">
-                <h4 class="affirmation-title">Daily Affirmation</h4>
-                <p>I am honoring the volume of negativity in my life, while simultaneously increasing the volume of positivity.</p>
+    <div class="card-col-2">
+
+        <div class="bg-white super-rounded shadow-2xl overflow-hidden w-96 transform scale-105">
+
+            <!-- Mock Image Area -->
+
+            <div class="h-96 bg-gray-200 relative">
+
+                <!-- Placeholder for the girl with headphones image -->
+
+                <div class="w-full h-full flex items-center justify-center text-center p-4">
+
+                    <div class="absolute top-4 left-4 text-white p-1 rounded-full bg-black/50 text-xs">9:41</div>
+
+                    <p class="text-gray-600 font-semibold text-lg">
+
+                    </p>
+
+                </div>
+
+                <!-- Top Bar -->
+
+                <div class="absolute top-0 w-full flex justify-between p-4 text-white">
+
+                    <button class="w-8 h-8 flex items-center justify-center bg-black/50 rounded-full">&lt;</button>
+
+                    <button class="w-8 h-8 flex items-center justify-center bg-black/50 rounded-full">...</button>
+
+                </div>
+
             </div>
-            
-            <p class="moodboard-label">my moodboard</p>
-            <p class="love-label">love</p>
+            <!-- Profile Info Area -->
 
-            <div class="decorative-element tape-1"></div>
-            <div class="decorative-element tape-2"></div>
-            <div class="decorative-element stars"></div>
-            <div class="decorative-element envelope"></div>
+            <div class="p-6 space-y-3">
+
+                <h3 class="text-2xl font-bold">Kathryn Murphy</h3>
+
+                <p class="text-sm text-gray-500">@kati677</p>
+
+
+
+                <p class="text-base leading-relaxed">
+
+                    Bookworm 📚 with a passion for obscure literature. Exploring 🔭 the cosmos in my free time. Remember, kindness is free.
+
+                </p>
+                <div class="flex space-x-3 pt-2">
+
+                    <button class="flex-1 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-800 rounded-3xl hover:bg-pink-50 transition">
+
+                        + Add Friend
+
+                    </button>
+
+                    <button class="flex-1 px-4 py-2 text-sm font-semibold bg-accent-blue text-white rounded-3xl shadow-lg hover:bg-pink-700 transition">
+
+                        Message
+
+                    </button>
+
+                </div>
+                <div class="flex items-center pt-3 text-sm text-gray-500">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+
+                    </svg>
+
+                    Seattle, WA
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- Column 3: Secondary Info and Overlaps -->
+    <div class="card-col-3 space-y-5">
+        <!-- Mutual Friends Card (Top Right) -->
+        <div class="bg-white ultra-rounded shadow-lg p-6 w-80 transform translate-y-10">
+            <div class="flex justify-between items-center mb-2">
+                <p class="text-sm font-semibold">Mutual friends <span class="text-gray-500">15</span></p>
+                <div class="text-sm font-semibold text-blue-600 cursor-pointer">See all</div>
+            </div>
+            <div class="flex -space-x-2 overflow-hidden">
+                <div class="w-8 h-8 bg-gray-400 border-2 border-white rounded-full flex items-center justify-center text-xs text-white">B</div>
+                <img class="w-8 h-8 rounded-full border-2 border-white" src="https://placehold.co/32x32/FFC0CB/000?text=S" alt="Profile S">
+            </div>
+            <p class="mt-2 text-sm text-gray-600">Brooklyn Simmons</p>
+        </div>
+
+        <!-- Another Group Item Card (Overlapping bottom right) -->
+        <div class="bg-white super-rounded shadow-2xl p-6 space-y-4 w-80 mt-12 transform translate-x-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 flex items-center justify-center text-sm font-semibold bg-yellow-600 text-white rounded-full">
+                        <span class="text-xl" role="img" aria-label="camel">🐪</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-semibold text-sm">Lightning Fast Tea...</p>
+                        <p class="text-xs text-gray-500">256 members</p>
+                    </div>
+                </div>
+                <button class="px-4 py-1 text-xs font-semibold bg-accent-blue text-white rounded-xl shadow-md hover:bg-pink-700 transition">Join</button>
+            </div>
         </div>
     </div>
+</div>
 </body>
 </html>
+

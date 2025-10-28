@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Design Wheel - Color Swap</title>
+    <style>
+        /* Base Styling and Setup */
+        :root {
+            --wheel-size: 500px;
+            --total-segments: 11;
+            /* Calculate angle for 11 segments (approx. 32.72 degrees) */
+            --angle: calc(360deg / var(--total-segments)); 
+            --center-size: 140px;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #FFC0CB; /* Swapped: This is now pink */
+        }
+
+        /* Wheel Container */
+        .wheel-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .survey-wheel {
+            position: relative;
+            width: var(--wheel-size);
+            height: var(--wheel-size);
+        }
+
+        /* Center Circle/Hub */
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: var(--center-size);
+            height: var(--center-size);
+            background-color: #3f3f3f; /* Dark center color */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.4);
+        }
+
+        /* Segment Styling and Positioning */
+        .segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Calculate the rotation for each segment based on its index (--i) */
+            --rotation: calc((var(--i) - 1) * var(--angle));
+            transform: rotate(var(--rotation));
+        }
+
+        /* Text Styling and Radial Layout */
+        .segment .text {
+            position: absolute;
+            top: 50%; /* Start at the center of the wheel */
+            left: 50%; 
+            padding: 5px 10px;
+            width: 180px; /* Give the text box width to prevent wrapping */
+            
+            /* Radial positioning transform sequence */
+            transform: 
+                rotate(90deg) /* 1. Rotate the coordinate system to point 'up' from the center */
+                translate(250px) /* 2. Push the text out to the edge (half of --wheel-size) */
+                rotate(-90deg) /* 3. Counter-rotate to make the text horizontal */
+                translate(0, -50%); /* 4. Vertically center the text within its bounding box */
+            
+            font-weight: bold;
+            font-size: 1.05em;
+            text-align: center;
+        }
+
+        /* --- VIBRANT COLORING --- */
+        .segment::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: calc(var(--wheel-size) / 2) 0 0 calc(var(--wheel-size) / 2);
+            border-color: transparent;
+            
+            transform-origin: top left;
+            transform: 
+                rotate(var(--rotation)) 
+                skewY(calc(90deg - (var(--angle) / 2))); 
+            
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        /* Specific text/background color mapping */
+        .segment:nth-child(2) .text, .segment:nth-child(2)::before { color: #8A2BE2; background-color: #8A2BE2; border-top-color: #8A2BE2; } /* 1. Problem Definition (Violet/Purple) */
+        
+        /* 🔥 SWAPPED COLOR: Measured Phenomena is now WHITE */
+        .segment:nth-child(3) .text, .segment:nth-child(3)::before { color: white; background-color: white; border-top-color: white; } /* 2. Measured Phenomena (Swapped to White) */
+        
+        .segment:nth-child(4) .text, .segment:nth-child(4)::before { color: #FF8C00; background-color: #FF8C00; border-top-color: #FF8C00; } /* 3. Analytical Plan (Dark Orange) */
+        .segment:nth-child(5) .text, .segment:nth-child(5)::before { color: #3CB371; background-color: #3CB371; border-top-color: #3CB371; } /* 4. Information Accuracy (Medium Sea Green) */
+        .segment:nth-child(6) .text, .segment:nth-child(6)::before { color: #00BFFF; background-color: #00BFFF; border-top-color: #00BFFF; } /* 5. Respondent Effort (Deep Sky Blue) */
+        .segment:nth-child(7) .text, .segment:nth-child(7)::before { color: #4682B4; background-color: #4682B4; border-top-color: #4682B4; } /* 6. Data Collection Mode (Steel Blue) */
+        .segment:nth-child(8) .text, .segment:nth-child(8)::before { color: #00CED1; background-color: #00CED1; border-top-color: #00CED1; } /* 7. Question Format (Dark Turquoise) */
+        .segment:nth-child(9) .text, .segment:nth-child(9)::before { color: #FFD700; background-color: #FFD700; border-top-color: #FFD700; } /* 8. Question Wording (Gold) */
+        .segment:nth-child(10) .text, .segment:nth-child(10)::before { color: #8B4513; background-color: #8B4513; border-top-color: #8B4513; } /* 9. Question Structure (Saddle Brown) */
+        .segment:nth-child(11) .text, .segment:nth-child(11)::before { color: #A9A9A9; background-color: #A9A9A9; border-top-color: #A9A9A9; } /* 10. Survey Flow (Dark Gray) */
+        .segment:nth-child(12) .text, .segment:nth-child(12)::before { color: #6A5ACD; background-color: #6A5ACD; border-top-color: #6A5ACD; } /* 11. Visual Layout (Slate Blue) */
+
+        .segment::before {
+            opacity: 0.1; /* Keep the background subtle */
+        }
+    </style>
+</head>
+<body>
+
+<div class="wheel-container">
+    <div class="survey-wheel">
+        <div class="center-circle">
+            Survey Design
+        </div>
+
+        <div class="segment" style="--i:1;">
+            <span class="text">1. Problem Definition</span>
+        </div>
+        <div class="segment" style="--i:2;">
+            <span class="text">2. Measured Phenomena</span>
+        </div>
+        <div class="segment" style="--i:3;">
+            <span class="text">3. Analytical Plan</span>
+        </div>
+        <div class="segment" style="--i:4;">
+            <span class="text">4. Information Accuracy</span>
+        </div>
+        <div class="segment" style="--i:5;">
+            <span class="text">5. Respondent Effort</span>
+        </div>
+        <div class="segment" style="--i:6;">
+            <span class="text">6. Data Collection Mode</span>
+        </div>
+        <div class="segment" style="--i:7;">
+            <span class="text">7. Question Format</span>
+        </div>
+        <div class="segment" style="--i:8;">
+            <span class="text">8. Question Wording</span>
+        </div>
+        <div class="segment" style="--i:9;">
+            <span class="text">9. Question Structure</span>
+        </div>
+        <div class="segment" style="--i:10;">
+            <span class="text">10. Survey Flow</span>
+        </div>
+        <div class="segment" style="--i:11;">
+            <span class="text">11. Visual Layout</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,4 +1,6 @@
 // inside server.js
+import multer from "multer";
+import fs from "fs-extra";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -64,4 +66,60 @@ app.get("/health", (_, res) => res.json({ status: "ok" }));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+});
+
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const username = req.session.username; // get logged-in username from session
+    const uploadPath = path.join(__dirname, "../frontend/static/uploads", username);
+    await fs.ensureDir(uploadPath); // create folder if not exists
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "_" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// Replace with your real MongoDB model
+const users = {}; // key = username
+
+app.post("/profile/update", requireAuth, upload.fields([
+  { name: "photo", maxCount: 1 },
+  { name: "photos", maxCount: 4 }
+]), (req, res) => {
+  const username = req.session.username;
+  if (!users[username]) users[username] = { username, email: req.session.email };
+
+  const user = users[username];
+
+  // Save text fields
+  user.phone = req.body.phone;
+  user.dob = req.body.dob;
+  user.description = req.body.description;
+  user.bio = req.body.bio;
+  user.pronouns = req.body.pronouns;
+  user.hobbies = req.body.hobbies;
+
+  // Save main profile photo
+  if (req.files["photo"]) {
+    user.photo = `/uploads/${username}/${req.files["photo"][0].filename}`;
+  }
+
+  // Save gallery photos
+  if (req.files["photos"]) {
+    user.photos = req.files["photos"].map(f => `/uploads/${username}/${f.filename}`);
+  }
+
+  res.json({ success: true, user });
+});
+
+
+app.get("/profile/me", requireAuth, (req, res) => {
+  const username = req.session.username;
+  if (!users[username]) {
+    return res.json({ username, email: req.session.email });
+  }
+  res.json(users[username]);
 });
