@@ -1,73 +1,10 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import User from "../models/User.js";
-
+// backend/routes/auth.js
+const express = require('express');
 const router = express.Router();
+const { registerUser, loginUser, logoutUser } = require('../controllers/authController');
 
-// Signup route (No change needed here)
-router.post("/signup", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+router.post('/signup', registerUser);
+router.post('/login', loginUser);
+router.get('/logout', logoutUser); // A GET route for simplicity
 
-    if (!username || !email || !password) {
-      return res.redirect("/signup.html?error=missing");
-    }
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.redirect("/signup.html?error=exists");
-    }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    // Create new user
-    const newUser = new User({
-      username,
-      email,
-      passwordHash
-    });
-
-    await newUser.save();
-
-    // Redirect to login after successful signup
-    return res.redirect("/login.html?success=1");
-  } catch (err) {
-    console.error(err);
-    return res.redirect("/signup.html?error=server");
-  }
-});
-
-// Login route (Changes applied here)
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.redirect("/login.html?error=missing");
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.redirect("/login.html?error=invalid");
-    }
-
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.redirect("/login.html?error=invalid");
-    }
-
-    // Save session: ADDED username and email to session for profile route compatibility
-    req.session.userId = user._id;
-    req.session.username = user.username;
-    req.session.email = user.email;
-    return res.redirect("/dashboard.html");
-  } catch (err) {
-    console.error(err);
-    return res.redirect("/login.html?error=server");
-  }
-});
-
-export default router;
+module.exports = router;

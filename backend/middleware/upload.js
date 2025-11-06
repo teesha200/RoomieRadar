@@ -1,26 +1,44 @@
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+// backend/middleware/upload.js
 
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
+// Destination folder for profile photos
+const uploadDir = path.join(__dirname, '..', '..', 'frontend', 'static', 'images', 'profiles');
+
+// Create the directory if it doesn't exist
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Set up storage engine
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, uploadsDir),
-  filename: (_, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  }
+    destination: (req, file, cb) => {
+        cb(null, uploadDir); 
+    },
+    filename: (req, file, cb) => {
+        // Create a unique filename
+        cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
+    }
 });
 
-const fileFilter = (_, file, cb) => {
-  const allowed = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-  if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Only JPEG/PNG/WEBP images allowed"));
-};
+// Initialize upload middleware
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        // Accept only image files
+        const filetypes = /jpeg|jpg|png|gif/;
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-export const uploadPhotos = multer({
-  storage,
-  fileFilter,
-  limits: { files: 4, fileSize: 5 * 1024 * 1024 } // 5MB each
-}).array("photos", 4);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only images (JPEG, JPG, PNG, GIF) are allowed.'));
+        }
+    }
+}).single('photoUpload'); // 'photoUpload' is the name attribute of the file input field
+
+module.exports = { upload };

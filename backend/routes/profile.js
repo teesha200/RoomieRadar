@@ -1,72 +1,31 @@
-import express from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs-extra";
-
+// backend/routes/profile.js
+const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
+const { 
+    getProfile, 
+    updateProfile, 
+    updatePreferences, 
+    getMatches,
+    swipe
+} = require('../controllers/profileController');
 
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    const username = req.session.username; // get logged-in user's username
-    const uploadPath = path.join(process.cwd(), "frontend/static/uploads", username);
-    await fs.ensureDir(uploadPath); // create folder if not exists
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "_" + file.originalname);
-  }
-});
+// All routes here require authentication (protect middleware)
 
-const upload = multer({ storage });
+// Get current user profile and view a specific profile
+router.get('/', protect, getProfile); 
 
-// In-memory user store (replace with MongoDB in production)
-const users = {};
+// Update profile details (uses upload middleware for photo)
+router.post('/update', protect, upload, updateProfile); 
 
-// Get current user profile
-router.get("/me", (req, res) => {
-  const username = req.session.username;
-  if (!username) return res.status(401).json({ error: "Not logged in" });
+// Update user preferences (survey)
+router.post('/preferences', protect, updatePreferences); 
 
-  if (!users[username]) {
-    return res.json({ username, email: req.session.email });
-  }
-  res.json(users[username]);
-});
+// Get list of potential matches
+router.get('/matches', protect, getMatches);
 
-// Update profile
-router.post("/update", upload.fields([
-  { name: "photo", maxCount: 1 },
-  { name: "photos", maxCount: 4 }
-]), (req, res) => {
-  const username = req.session.username;
-  if (!username) return res.status(401).json({ error: "Not logged in" });
+// Handle swipe (left/right)
+router.post('/swipe/:targetUserId', protect, swipe);
 
-  if (!users[username]) {
-    users[username] = { username, email: req.session.email };
-  }
-
-  const user = users[username];
-
-  // Save text fields
-  user.phone = req.body.phone || "";
-  user.dob = req.body.dob || "";
-  user.description = req.body.description || "";
-  user.bio = req.body.bio || "";
-  user.pronouns = req.body.pronouns || "";
-  user.hobbies = req.body.hobbies || "";
-
-  // Save main profile photo
-  if (req.files["photo"]?.length > 0) {
-    user.photo = `/uploads/${username}/${req.files["photo"][0].filename}`;
-  }
-
-  // Save gallery photos
-  if (req.files["photos"]?.length > 0) {
-    user.photos = req.files["photos"].map(f => `/uploads/${username}/${f.filename}`);
-  }
-
-  res.json({ success: true, user });
-});
-
-export default router; // ✅ default export
+module.exports = router;

@@ -1,93 +1,99 @@
-import bcrypt from "bcryptjs";
-import { User } from "../models/User.js";
+// backend/controllers/authController.js
+const User = require('../models/User'); 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-export const postSignup = async (req, res) => {
-  try {
-    // Ensure exactly 4 photos uploaded
-    if (!req.files || req.files.length !== 4) {
-      return res.status(400).send("Exactly 4 photos are required.");
-    }
-
-    const {
-      username,
-      name,
-      email,
-      password,
-      confirm_password,
-      dob,
-      pronouns,
-      hobbies,
-      bio,
-      description
-    } = req.body;
-
-    if (password !== confirm_password) {
-      return res.status(400).send("Passwords do not match.");
-    }
-
-    const exists = await User.findOne({ $or: [{ email }, { username }] });
-    if (exists) return res.status(409).send("Email or username already in use.");
-
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    const photos = req.files.map(f => ({
-      filename: f.filename,
-      url: `/uploads/${f.filename}`
-    }));
-
-    const hobbiesArray = Array.isArray(hobbies)
-      ? hobbies
-      : (hobbies || "")
-          .split(",")
-          .map(h => h.trim())
-          .filter(Boolean);
-
-    const user = await User.create({
-      username,
-      name,
-      email,
-      passwordHash,
-      dob: new Date(dob),
-      pronouns,
-      hobbies: hobbiesArray,
-      bio,
-      description,
-      photos
-    });
-
-    req.session.userId = user._id.toString();
-
-    // After signup, you can either redirect to /profile directly or to /login then /profile
-    return res.redirect("/profile");
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send("Signup failed.");
-  }
-};
-
-export const postLogin = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const user = await User.findOne({
-      $or: [{ username }, { email: username }]
-    });
-    if (!user) return res.status(400).send("Invalid credentials");
-
-    const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return res.status(400).send("Invalid credentials");
-
-    req.session.userId = user._id.toString();
-    return res.redirect("/profile");
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send("Login failed.");
-  }
-};
-
-export const getLogout = (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("connect.sid");
-    res.redirect("/login");
+// Helper function to generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
   });
 };
+
+// @desc    Register a new user
+// @route   POST /auth/signup
+const registerUser = async (req, res) => {
+  const { username, email, password, confirm_password } = req.body;
+
+  if (!username || !email || !password || !confirm_password) {
+    // Simple redirect with an error query param
+    return res.redirect('/signup.html?error=missing');
+  }
+
+  if (password !== confirm_password) {
+    return res.redirect('/signup.html?error=mismatch');
+  }
+
+  try {
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.redirect('/signup.html?error=exists');
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    user = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    // Automatically log in the user after registration
+    const token = generateToken(user._id);
+
+    // Set token in cookie and redirect to login (or dashboard)
+    res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+    }).redirect('/login.html?registered=true');
+
+  } catch (error) {
+    console.error(error);
+    res.redirect('/signup.html?error=server');
+  }
+};
+
+// @desc    Authenticate user & get token
+// @route   POST /auth/login
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // User matched, generate token
+      const token = generateToken(user._id);
+
+      // Set token in cookie and redirect to dashboard
+      res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+      }).redirect('/dashboard.html');
+    } else {
+      // Invalid credentials
+      res.redirect('/login.html?error=invalid');
+    }
+  } catch (error) {
+    console.error(error);
+    res.redirect('/login.html?error=server');
+  }
+};
+
+// @desc    Logout user / clear cookie
+// @route   GET /auth/logout
+const logoutUser = (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/login.html');
+};
+
+
+module.exports = { registerUser, loginUser, logoutUser };
