@@ -1,99 +1,100 @@
 // backend/controllers/authController.js
-const User = require('../models/User'); 
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Helper function to generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+// Helper to generate JWT
+const generateToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
 
-// @desc    Register a new user
-// @route   POST /auth/signup
-const registerUser = async (req, res) => {
-  const { username, email, password, confirm_password } = req.body;
-
-  if (!username || !email || !password || !confirm_password) {
-    // Simple redirect with an error query param
-    return res.redirect('/signup.html?error=missing');
-  }
-
-  if (password !== confirm_password) {
-    return res.redirect('/signup.html?error=mismatch');
-  }
-
+// ------------------------------------------
+// POST /auth/signup
+// ------------------------------------------
+exports.registerUser = async (req, res) => {
   try {
-    // Check if user already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.redirect('/signup.html?error=exists');
+    const { username, email, password, confirm_password } = req.body;
+
+    // Validate required fields
+    if (!username || !email || !password || !confirm_password) {
+      return res.redirect('/signup.html?error=missing');
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Password mismatch
+    if (password !== confirm_password) {
+      return res.redirect('/signup.html?error=password_mismatch');
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.redirect('/signup.html?error=email_exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    user = await User.create({
+    const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
     });
 
-    // Automatically log in the user after registration
-    const token = generateToken(user._id);
-
-    // Set token in cookie and redirect to login (or dashboard)
-    res.cookie('token', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-    }).redirect('/login.html?registered=true');
-
+    // After signup → redirect to login page
+    return res.redirect('/login.html?success=registered');
   } catch (error) {
     console.error(error);
-    res.redirect('/signup.html?error=server');
+    return res.redirect('/signup.html?error=server');
   }
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /auth/login
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
+// ------------------------------------------
+// POST /auth/login
+// ------------------------------------------
+exports.loginUser = async (req, res) => {
   try {
+    const { email, password } = req.body;
+
+    // Validate fields
+    if (!email || !password) {
+      return res.redirect('/login.html?error=missing');
+    }
+
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // User matched, generate token
-      const token = generateToken(user._id);
-
-      // Set token in cookie and redirect to dashboard
-      res.cookie('token', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-      }).redirect('/dashboard.html');
-    } else {
-      // Invalid credentials
-      res.redirect('/login.html?error=invalid');
+    if (!user) {
+      return res.redirect('/login.html?error=invalid');
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.redirect('/login.html?error=invalid');
+    }
+
+    // Create JWT
+    const token = generateToken(user._id);
+
+    // Store token in cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // true only in HTTPS
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    // Redirect to dashboard
+    return res.redirect('/dashboard.html');
   } catch (error) {
     console.error(error);
-    res.redirect('/login.html?error=server');
+    return res.redirect('/login.html?error=server');
   }
 };
 
-// @desc    Logout user / clear cookie
-// @route   GET /auth/logout
-const logoutUser = (req, res) => {
-    res.clearCookie('token');
-    res.redirect('/login.html');
+// ------------------------------------------
+// GET /auth/logout
+// ------------------------------------------
+exports.logoutUser = async (req, res) => {
+  res.clearCookie('token');
+  return res.redirect('/login.html');
 };
-
-
-module.exports = { registerUser, loginUser, logoutUser };

@@ -16,6 +16,9 @@ const connectDB = require('./backend/config/db');
 connectDB();
 
 const app = express();
+
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -45,7 +48,7 @@ app.get('/', (req, res) => {
     // Check for auth cookie for initial redirect
     const token = req.cookies.token;
     if (token) {
-        return res.redirect('/dashboard.html');
+        return res.redirect('/login.html');
     }
     res.sendFile(path.join(__dirname, 'frontend', 'static', 'templates', 'login.html'));
 });
@@ -99,5 +102,10 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Add this in server.js or app.js **before your other routes**
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});

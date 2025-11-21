@@ -1,441 +1,229 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomieRadar - Set Up Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <meta charset="UTF-8" />
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #e75480;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),
+                             linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
 
-  <title>RoomieRadar | My Profile</title>
+        .profile-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            background: #fcf6d3;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(54, 9, 80, 0.445);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
 
-  <script src="https://cdn.tailwindcss.com"></script>
+        .profile-container .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+        }
 
-  <script>
+        .profile-container h2 {
+            text-align: center;
+            color: #e75480;
+            margin-bottom: 25px;
+            margin-top: 30px;
+        }
 
-    tailwind.config = {
+        .profile-photo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-      theme: {
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #ff94b6;
+            border: 4px solid #ff94b6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            margin: 0 auto; /* THIS IS THE ONLY CHANGE: Centers the circle horizontally */
+        }
 
-        extend: {
+        .avatar-circle i {
+            font-size: 48px;
+            color: #fcf6d3;
+        }
 
-          colors: {
+        #profilePictureInput {
+            display: none;
+        }
 
-            primary: '#e75480',
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
 
-            darkBg: '#0f0a1e',
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            border-bottom: 2px solid #e75480;
+            background: transparent;
+            font-size: 1em;
+            color: #e75480;
+        }
 
-            textMuted: '#b0b0b0',
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-bottom: 2px solid #e75480;
+        }
 
-          },
+        .btn-submit {
+            background: #e75480;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 25px;
+        }
 
-        },
-
-      },
-
-    };
-
-  </script>
-
-  <style>
-
-    body {
-
-      background: linear-gradient(180deg, #3b0a45, #000);
-
-      color: white;
-
-      font-family: 'Inter', sans-serif;
-
-      display: flex;
-
-      justify-content: center;
-
-      align-items: center;
-
-      min-height: 100vh;
-
-      overflow: hidden;
-
-    }
-
-    .card {
-
-      background: rgba(255, 255, 255, 0.08);
-
-      backdrop-filter: blur(20px);
-
-      border-radius: 30px;
-
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-
-      width: 370px;
-
-      height: 600px;
-
-      padding: 20px;
-
-      position: relative;
-
-      overflow-y: auto;
-
-      scrollbar-width: thin;
-
-      scrollbar-color: #e75480 #2e073f;
-
-    }
-
-    input, textarea, select {
-
-      background: rgba(255,255,255,0.1);
-
-      border: none;
-
-      outline: none;
-
-      color: white;
-
-      border-radius: 10px;
-
-      padding: 6px 10px;
-
-      width: 100%;
-
-      resize: none;
-
-    }
-
-    select option {
-
-      color: black;
-
-    }
-
-    button:disabled {
-
-      opacity: 0.6;
-
-      cursor: not-allowed;
-
-    }
-
-  </style>
-
+        .btn-submit:hover { background: #c23d68; }
+    </style>
 </head>
 
 <body>
 
-  <div class="card">
-
-    <!-- Header -->
-
-    <div class="text-center mb-5">
-
-      <div class="flex flex-col items-center mt-2">
-
-        <label for="photoUpload" class="cursor-pointer">
-
-          <img id="profile-photo" src="../static/images/default-avatar.png" alt="Profile"
-
-               class="w-24 h-24 rounded-full border-4 border-primary shadow-lg object-cover">
-
-        </label>
-
-        <input type="file" id="photoUpload" class="hidden" accept="image/*">
-
-        <h2 id="profile-username" class="text-xl font-semibold mt-3">Loading...</h2>
-
-        <p id="profile-email" class="text-sm text-textMuted">Loading...</p>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- Editable Fields -->
-
-    <div class="space-y-3 text-sm pb-5">
-
-      <div>
-
-        <label class="block text-textMuted mb-1">Pronouns</label>
-
-        <select id="profile-pronouns">
-
-          <option value="">-- Select Pronouns --</option>
-
-          <option value="she/her">She / Her</option>
-
-          <option value="he/him">He / Him</option>
-
-          <option value="they/them">They / Them</option>
-
-          <option value="other">Other</option>
-
-        </select>
-
-      </div>
-
-
-
-      <div>
-
-        <label class="block text-textMuted mb-1">Bio</label>
-
-        <textarea id="profile-bio" rows="2" placeholder="Write a short bio..."></textarea>
-
-      </div>
-
-
-
-      <div>
-
-        <label class="block text-textMuted mb-1">Description</label>
-
-        <textarea id="profile-description" rows="2" placeholder="Describe yourself..."></textarea>
-
-      </div>
-
-
-
-      <div>
-
-        <label class="block text-textMuted mb-1">Hobbies</label>
-
-        <input id="profile-hobbies" placeholder="e.g., Reading, Painting, Hiking" />
-
-      </div>
-
-
-
-      <div>
-
-        <label class="block text-textMuted mb-1">Status</label>
-
-        <select id="profile-status">
-
-          <option value="">-- Select --</option>
-
-          <option value="Job">Job</option>
-
-          <option value="Student">Student</option>
-
-        </select>
-
-      </div>
-
-
-
-      <div id="occupation-field" class="hidden">
-
-        <label class="block text-textMuted mb-1">Occupation / Course</label>
-
-        <input id="profile-occupation" placeholder="e.g., Software Engineer or B.Tech CSE" />
-
-      </div>
-
-    </div>
-
-
-
-    <!-- Save Button at bottom -->
-
-    <div class="mt-6 flex justify-center">
-
-      <button id="saveBtn" class="bg-primary text-white px-5 py-2 rounded-full shadow-lg text-sm font-semibold w-full">
-
-        💾 Save
-
-      </button>
-
-    </div>
-
-  </div>
-
-
-
-  <script>
-
-    const API_BASE = "http://localhost:3000/profile";
-
-
-
-    async function loadProfile() {
-
-      try {
-
-        const res = await fetch(`${API_BASE}/me`, {
-
-          method: "GET",
-
-          credentials: "include", // ensures session cookie sent
-
-        });
-
-
-
-        if (!res.ok) {
-
-          const errText = await res.text();
-
-          console.error("Server Error:", errText);
-
-          throw new Error("Failed to fetch profile");
-
-        }
-
-
-
-        const data = await res.json();
-
-        console.log("Loaded profile:", data);
-
-
-
-        document.getElementById("profile-username").textContent = data.username || "User";
-
-        document.getElementById("profile-email").textContent = data.email || "No email";
-
-        document.getElementById("profile-pronouns").value = data.pronouns || "";
-
-        document.getElementById("profile-bio").value = data.bio || "";
-
-        document.getElementById("profile-description").value = data.description || "";
-
-        document.getElementById("profile-hobbies").value = data.hobbies || "";
-
-        document.getElementById("profile-status").value = data.status || "";
-
-        document.getElementById("profile-occupation").value = data.occupation || "";
-
-
-
-        if (data.photo) document.getElementById("profile-photo").src = data.photo;
-
-
-
-        toggleOccupationField(data.status);
-
-      } catch (err) {
-
-        console.error("❌ Load error:", err);
-
-        document.getElementById("profile-username").textContent = "Error Loading";
-
-        document.getElementById("profile-email").textContent = "Try again later";
-
-      }
-
-    }
-
-
-
-    function toggleOccupationField(value) {
-
-      document.getElementById("occupation-field").classList.toggle("hidden", !value);
-
-    }
-
-
-
-    document.getElementById("profile-status").addEventListener("change", (e) => {
-
-      toggleOccupationField(e.target.value);
-
-    });
-
-
-
-    document.getElementById("photoUpload").addEventListener("change", (e) => {
-
-      const file = e.target.files[0];
-
-      if (file) document.getElementById("profile-photo").src = URL.createObjectURL(file);
-
-    });
-
-
-
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-
-      const formData = new FormData();
-
-      formData.append("pronouns", document.getElementById("profile-pronouns").value);
-
-      formData.append("bio", document.getElementById("profile-bio").value);
-
-      formData.append("description", document.getElementById("profile-description").value);
-
-      formData.append("hobbies", document.getElementById("profile-hobbies").value);
-
-      formData.append("status", document.getElementById("profile-status").value);
-
-      formData.append("occupation", document.getElementById("profile-occupation").value);
-
-
-
-      const photo = document.getElementById("photoUpload").files[0];
-
-      if (photo) formData.append("photo", photo);
-
-
-
-      const btn = document.getElementById("saveBtn");
-
-      btn.disabled = true;
-
-      btn.textContent = "Saving...";
-
-
-
-      try {
-
-        const res = await fetch(`${API_BASE}/update`, {
-
-          method: "POST",
-
-          credentials: "include",
-
-          body: formData,
-
-        });
-
-
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || "Failed");
-
-
-
-        alert("✅ Profile updated!");
-
-        loadProfile();
-
-      } catch (err) {
-
-        console.error("Save failed:", err);
-
-        alert("❌ " + err.message);
-
-      } finally {
-
-        btn.disabled = false;
-
-        btn.textContent = "💾 Save";
-
-      }
-
-    });
-
-
-
-    loadProfile();
-
-  </script>
+<div class="profile-container">
+
+    <img src="/images/blogo.png" class="logo">
+
+    <h2>Tell us about yourself!</h2>
+
+    <form action="/api/profile/update" method="POST" enctype="multipart/form-data">
+
+        <div class="profile-photo-area" onclick="document.getElementById('profilePictureInput').click()">
+            <div class="avatar-circle" id="avatarCircle">
+                <i class='bx bxs-camera'></i>
+            </div>
+            <input type="file" id="profilePictureInput" name="profilePicture" accept="image/*">
+        </div>
+        
+
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input name="fullName" id="fullName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="birthDate">Birth Date</label>
+            <input type="date" name="birthDate" id="birthDate">
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select name="gender" id="gender" required>
+                <option value="">Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="course">Department</label>
+            <input name="course" id="course" required>
+        </div>
+
+        <div class="form-group">
+            <label for="permanentAddress">Permanent Address</label>
+            <input name="permanentAddress" id="permanentAddress">
+        </div>
+
+        <div class="form-group">
+            <label for="contactNumber">Contact Number</label>
+            <input type="text" name="contactNumber" id="contactNumber">
+        </div>
+
+        <div class="form-group">
+            <label for="instagramLink">Instagram Link</label>
+            <input name="instagramLink" id="instagramLink" placeholder="https://instagram.com/...">
+        </div>
+
+        <div class="form-group">
+            <label for="linkedinLink">LinkedIn Link</label>
+            <input name="linkedinLink" id="linkedinLink" placeholder="https://linkedin.com/in/...">
+        </div>
+
+        <div class="form-group">
+            <label for="bio">About Me (Bio)</label>
+            <textarea name="bio" id="bio" rows="4"></textarea>
+        </div>
+
+        <button onclick="alert('FORM PAGE LOADED')" class="btn-submit">Save My Profile!</button>
+
+    </form>
+</div>
+
+<script>
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const circle = document.getElementById('avatarCircle');
+        circle.innerHTML = "";
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";
+        circle.appendChild(img);
+    };
+
+    reader.readAsDataURL(file);
+}
+
+document.getElementById('profilePictureInput')
+    .addEventListener('change', handleImageUpload);
+</script>
 
 </body>
-
 </html>

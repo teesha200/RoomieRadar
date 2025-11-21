@@ -1,31 +1,32 @@
 // backend/routes/profile.js
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
-const { upload } = require('../middleware/upload');
-const { 
-    getProfile, 
-    updateProfile, 
-    updatePreferences, 
-    getMatches,
-    swipe
+
+const auth = require('../middleware/auth');
+const multer = require('multer');
+
+// Multer memory storage for Base64 image conversion
+const upload = multer({
+  storage: multer.memoryStorage()
+});
+
+const {
+  updateProfile,
+  getMyProfile,
+  savePreferences,
+  getMatches
 } = require('../controllers/profileController');
 
-// All routes here require authentication (protect middleware)
+// Update or create profile (with image upload)
+router.post('/update', auth, upload.single("profilePicture"), updateProfile);
 
-// Get current user profile and view a specific profile
-router.get('/', protect, getProfile); 
+// Get logged-in user's profile
+router.get('/me', auth, getMyProfile);
 
-// Update profile details (uses upload middleware for photo)
-router.post('/update', protect, upload, updateProfile); 
+// Save user preferences
+router.post('/preferences', auth, savePreferences);
 
-// Update user preferences (survey)
-router.post('/preferences', protect, updatePreferences); 
-
-// Get list of potential matches
-router.get('/matches', protect, getMatches);
-
-// Handle swipe (left/right)
-router.post('/swipe/:targetUserId', protect, swipe);
+// Get matches
+router.get('/matches', auth, getMatches);
 
 module.exports = router;

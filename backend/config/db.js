@@ -2,12 +2,17 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
+  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/roomie-radarDB';
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB Connected successfully.');
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      // mongoose 6+ doesn't need useCreateIndex/useFindAndModify options
+    });
+    console.log('✅ MongoDB connected:', mongoURI);
   } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', err.message || err);
+    process.exit(1); // exit process with failure
   }
 };
 

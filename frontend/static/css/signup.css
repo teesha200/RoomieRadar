@@ -11,7 +11,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #8e44ad, #3498db);
+    background: linear-gradient(135deg, #8e44ad, #e75480);
   }
   
   .container {
@@ -66,7 +66,7 @@
   .input-box input:valid ~ label {
     top: -15px;
     font-size: 0.85rem;
-    color: #3498db;
+    color: #e75480;
   }
   
   .input-box i {
@@ -78,7 +78,7 @@
   }
   
   .btn {
-    background: #3498db;
+    background: #e75480;
     color: #fff;
     padding: 12px 20px;
     border: none;
@@ -93,13 +93,13 @@
   }
   
   .btn:hover {
-    background: #2980b9;
+    background: #c23d68;
   }
   
   /* Right info box */
   .form-box.login {
     width: 40%;
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    background: linear-gradient(135deg, #e75480, #a126c0);
     color: #fff;
     padding: 40px;
     display: flex;
