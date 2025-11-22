@@ -1,4 +1,3 @@
-// backend/models/Preferences.js
 const mongoose = require('mongoose');
 
 const PreferencesSchema = new mongoose.Schema(
@@ -7,6 +6,21 @@ const PreferencesSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
+    },
+
+    lookingFor: {
+      type: String,
+      default: ""
+    },
+
+    currentHostel: {
+      type: String,
+      default: ""
+    },
+
+    hostelPreference: {
+      type: String,
+      default: ""
     },
 
     preferredGender: {
@@ -29,39 +43,9 @@ const PreferencesSchema = new mongoose.Schema(
       default: ""
     },
 
-    cleanliness: {
-      type: String,
-      default: ""
-    },
-
-    smoking: {
-      type: String,
-      default: ""
-    },
-
-    drinking: {
-      type: String,
-      default: ""
-    },
-
     hobbies: {
       type: [String],
       default: []
-    },
-
-    sleepSchedule: {
-      type: String,
-      default: ""
-    },
-
-    studyStyle: {
-      type: String,
-      default: ""
-    },
-
-    noiseTolerance: {
-      type: String,
-      default: ""
     }
   },
   { timestamps: true }

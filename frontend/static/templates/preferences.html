@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <style>
-        /* --- DASHBOARD BACKGROUND STYLES START --- */
         body { 
             font-family: 'Montserrat', sans-serif; 
             background: #e75480; 
@@ -32,11 +31,8 @@
             background-size: 80px 80px;
             z-index: 0;
         }
-        /* --- DASHBOARD BACKGROUND STYLES END --- */
-        
-        .preferences-container::-webkit-scrollbar {
-            display: none; 
-        }
+
+        .preferences-container::-webkit-scrollbar { display: none; }
 
         .preferences-container { 
             position: relative;
@@ -49,18 +45,15 @@
             box-shadow: 0 5px 30px rgba(54, 9, 80, 0.445);
             max-height: 90vh; 
             overflow-y: auto; 
-            margin: 20px; 
-            
-            -ms-overflow-style: none; 
-            scrollbar-width: none;    
+            margin: 20px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        
+
         @media (min-width: 768px) {
-             .preferences-container {
-                 width: 40%;
-             }
+            .preferences-container { width: 40%; }
         }
-        
+
         .preferences-container .logo {
             position: absolute;
             top: 20px; 
@@ -76,9 +69,10 @@
             margin-bottom: 25px; 
             margin-top: 30px; 
         }
-        .form-group { position: relative; margin-bottom: 20px; } 
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-        
+
+        .form-group { position: relative; margin-bottom: 20px; }
+        .form-group label { margin-bottom: 8px; display: block; font-weight: 600; color: #333; }
+
         .form-group select { 
             width: 100%; 
             padding: 10px 30px 10px 0; 
@@ -86,11 +80,7 @@
             border-bottom: 2px solid #852a45; 
             background-color: transparent; 
             color: #e75480; 
-            border-radius: 0; 
-            box-sizing: border-box; 
             appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
             font-size: 1em; 
         }
 
@@ -98,7 +88,6 @@
             position: absolute;
             right: 10px;
             bottom: 2px; 
-            transform: translateY(0); 
             pointer-events: none;
             color: #8b2d49;
             font-size: 1.2em;
@@ -114,200 +103,182 @@
             font-size: 1.1em; 
             font-weight: 600; 
             width: 100%; 
-            transition: background-color 0.3s; 
             margin-top: 15px; 
         }
+
         .btn-submit:hover { background-color: #c23d68; }
-        
-        /* Visibility toggling */
-        .hidden-field { 
-            display: none; 
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        .visible-field {
-            display: block;
-            opacity: 1;
-        }
+
+        .hidden-field { display: none; opacity: 0; transition: opacity 0.5s ease; }
+        .visible-field { display: block; opacity: 1; }
     </style>
 </head>
+
 <body>
-    <div class="preferences-container">
-        <img src="/images/blogo.png" alt="RoomieRadar Logo" class="logo">
-        <h2>Who are you looking for?</h2>
-        
-        <!-- UPDATED: Added onsubmit handler to redirect -->
-        <form onsubmit="handleFormSubmit(event)">
-            
-            <div class="form-group">
-                <label for="lookingFor">You are looking to</label>
-                <select id="lookingFor" name="lookingFor" required onchange="toggleHostelInput()">
-                    <option value="">Select Purpose</option>
-                    <option value="New Admission">New Admission (Find a new room/roomie)</option>
-                    <option value="Change Hostel">Change Hostel/Room (Find a replacement roomie)</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
 
-            <!-- GROUP 1: Current Hostel (Initially Hidden) -->
-            <div class="form-group hidden-field" id="currentHostelGroup">
-                <label for="currentHostel">Current Hostel?</label>
-                <select id="currentHostel" name="currentHostel">
-                    <option value="">Select Current Hostel</option>
-                    <option value="3s1">3s1</option>
-                    <option value="4s1">4s1</option>
-                    <option value="6s1">6s1</option>
-                    <option value="7s1">7s1</option>
-                    <option value="7s2">7s2</option>
-                    <option value="11s1">11s1</option>
-                    <option value="11s2">11s2</option>
-                    <option value="12s1">12s1</option>
-                    <option value="12s2">12s2</option>
-                    <option value="13s1">13s1</option>
-                    <option value="13s2">13s2</option>
-                    <option value="13s3">13s3</option>
-                    <option value="14s1">14s1</option>
-                    <option value="14s2">14s2</option>
-                    <option value="15s1">15s1</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
-            
-            <!-- GROUP 2: Hostel Preference (Initially Hidden) -->
-            <div class="form-group hidden-field" id="hostelPreferenceGroup">
-                <label for="hostelPreference">Hostel Preference</label>
-                <select id="hostelPreference" name="hostelPreference">
-                    <option value="">Select Preferred Hostel</option>
-                    <option value="3s1">3s1</option>
-                    <option value="4s1">4s1</option>
-                    <option value="6s1">6s1</option>
-                    <option value="7s1">7s1</option>
-                    <option value="7s2">7s2</option>
-                    <option value="11s1">11s1</option>
-                    <option value="11s2">11s2</option>
-                    <option value="12s1">12s1</option>
-                    <option value="12s2">12s2</option>
-                    <option value="13s1">13s1</option>
-                    <option value="13s2">13s2</option>
-                    <option value="13s3">13s3</option>
-                    <option value="14s1">14s1</option>
-                    <option value="14s2">14s2</option>
-                    <option value="15s1">15s1</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+<div class="preferences-container">
+    <img src="/images/blogo.png" class="logo">
+    <h2>Who are you looking for?</h2>
 
-            <div class="form-group">
-                <label for="genderPreference">Roommate Gender Preference</label>
-                <select id="genderPreference" name="genderPreference" required>
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+    <form action="/api/profile/preferences" method="POST">
 
-            <div class="form-group">
-                <label for="departmentPreference">Roommate Department</label>
-                <select id="departmentPreference" name="departmentPreference" required>
-                    <option value="">Select Department</option>
-                    <option value="SET">SET</option>
-                    <option value="SOB">SOB</option>
-                    <option value="SLAS">SLAS</option>
-                    <option value="SOL">SOL</option>
-                    <option value="SOD">SOD</option>
-                    <option value="Pharmacy">Pharmacy</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+        <div class="form-group">
+            <label for="lookingFor">You are looking to</label>
+            <select id="lookingFor" name="lookingFor" required onchange="toggleHostelInput()">
+                <option value="">Select Purpose</option>
+                <option value="New Admission">New Admission (Find a new room/roomie)</option>
+                <option value="Change Hostel">Change Hostel/Room (Find a replacement roomie)</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-            <div class="form-group">
-                <label for="yearPreference">Roommate Year of Study</label>
-                <select id="yearPreference" name="yearPreference" required>
-                    <option value="">Select Year</option>
-                    <option value="1st">1st Year</option>
-                    <option value="2nd">2nd Year</option>
-                    <option value="3rd">3rd Year</option>
-                    <option value="4th">4th Year</option>
-                    <option value="5th">5th Year</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+        <!-- CURRENT HOSTEL -->
+        <div class="form-group hidden-field" id="currentHostelGroup">
+            <label for="currentHostel">Current Hostel?</label>
+            <select id="currentHostel" name="currentHostel">
+                <option value="">Select Current Hostel</option>
+                <option value="3s1">3s1</option>
+                <option value="4s1">4s1</option>
+                <option value="6s1">6s1</option>
+                <option value="7s1">7s1</option>
+                <option value="7s2">7s2</option>
+                <option value="11s1">11s1</option>
+                <option value="11s2">11s2</option>
+                <option value="12s1">12s1</option>
+                <option value="12s2">12s2</option>
+                <option value="13s1">13s1</option>
+                <option value="13s2">13s2</option>
+                <option value="13s3">13s3</option>
+                <option value="14s1">14s1</option>
+                <option value="14s2">14s2</option>
+                <option value="15s1">15s1</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-            <div class="form-group">
-                <label for="seaterPreference">Room Size Preference</label>
-                <select id="seaterPreference" name="seaterPreference" required>
-                    <option value="">Select Seater</option>
-                    <option value="1">1 Seater</option>
-                    <option value="2">2 Seaters</option>
-                    <option value="3">3 Seaters</option>
-                    <option value="6">6 Seaters</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+        <!-- HOSTEL PREFERENCE -->
+        <div class="form-group hidden-field" id="hostelPreferenceGroup">
+            <label for="hostelPreference">Hostel Preference</label>
+            <select id="hostelPreference" name="hostelPreference">
+                <option value="">Select Preferred Hostel</option>
+                <option value="3s1">3s1</option>
+                <option value="4s1">4s1</option>
+                <option value="6s1">6s1</option>
+                <option value="7s1">7s1</option>
+                <option value="7s2">7s2</option>
+                <option value="11s1">11s1</option>
+                <option value="11s2">11s2</option>
+                <option value="12s1">12s1</option>
+                <option value="12s2">12s2</option>
+                <option value="13s1">13s1</option>
+                <option value="13s2">13s2</option>
+                <option value="13s3">13s3</option>
+                <option value="14s1">14s1</option>
+                <option value="14s2">14s2</option>
+                <option value="15s1">15s1</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-            <div class="form-group">
-                <label for="hobbyPreference">Roommate Spare Time Activity Match</label>
-                <select id="hobbyPreference" name="hobbyPreference" required>
-                    <option value="">Select Hobby</option>
-                    <option value="Dancing">Dancing</option>
-                    <option value="Painting/Drawing">Painting/Drawing</option>
-                    <option value="Writing">Writing</option>
-                    <option value="Talking/Socializing">Talking</option>
-                    <option value="Sleeping/Resting">Sleeping</option>
-                </select>
-                <i class='bx bx-chevron-down'></i>
-            </div>
+        <!-- UPDATED FIELD NAMES BELOW -->
 
-            <button type="submit" class="btn-submit">Find My Roomie!</button>
-        </form>
-    </div>
+        <div class="form-group">
+            <label for="preferredGender">Roommate Gender Preference</label>
+            <select id="preferredGender" name="preferredGender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-    <script>
-        // 1. Handle Form Submission
-        function handleFormSubmit(event) {
-            // Prevent the default form submission (which reloads the page)
-            event.preventDefault();
-            
-            // Redirect to the matches page
-            window.location.href = 'matches.html';
-        }
+        <div class="form-group">
+            <label for="department">Roommate Department</label>
+            <select id="department" name="department" required>
+                <option value="">Select Department</option>
+                <option value="SET">SET</option>
+                <option value="SOB">SOB</option>
+                <option value="SLAS">SLAS</option>
+                <option value="SOL">SOL</option>
+                <option value="SOD">SOD</option>
+                <option value="Pharmacy">Pharmacy</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-        // 2. Toggle visibility of Hostel fields
-        function toggleHostelInput() {
-            const lookingFor = document.getElementById('lookingFor').value;
-            
-            // Elements for "Current Hostel"
-            const currentHostelGroup = document.getElementById('currentHostelGroup');
-            const currentHostelSelect = document.getElementById('currentHostel');
+        <div class="form-group">
+            <label for="yearOfStudy">Roommate Year of Study</label>
+            <select id="yearOfStudy" name="yearOfStudy" required>
+                <option value="">Select Year</option>
+                <option value="1st">1st Year</option>
+                <option value="2nd">2nd Year</option>
+                <option value="3rd">3rd Year</option>
+                <option value="4th">4th Year</option>
+                <option value="5th">5th Year</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-            // Elements for "Hostel Preference"
-            const preferenceGroup = document.getElementById('hostelPreferenceGroup');
-            const preferenceSelect = document.getElementById('hostelPreference');
+        <div class="form-group">
+            <label for="seaterType">Room Size Preference</label>
+            <select id="seaterType" name="seaterType" required>
+                <option value="">Select Seater</option>
+                <option value="1">1 Seater</option>
+                <option value="2">2 Seaters</option>
+                <option value="3">3 Seaters</option>
+                <option value="6">6 Seaters</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-            if (lookingFor === 'Change Hostel') {
-                // Show BOTH and make BOTH required
-                currentHostelGroup.classList.remove('hidden-field');
-                currentHostelGroup.classList.add('visible-field');
-                currentHostelSelect.setAttribute('required', 'required');
+        <div class="form-group">
+            <label for="hobbies">Roommate Spare Time Activity Match</label>
+            <select id="hobbies" name="hobbies" required>
+                <option value="">Select Hobby</option>
+                <option value="Dancing">Dancing</option>
+                <option value="Painting/Drawing">Painting/Drawing</option>
+                <option value="Writing">Writing</option>
+                <option value="Gossiping">Gossiping</option>
+                <option value="Sleeping/Resting">Sleeping</option>
+            </select>
+            <i class='bx bx-chevron-down'></i>
+        </div>
 
-                preferenceGroup.classList.remove('hidden-field');
-                preferenceGroup.classList.add('visible-field');
-                preferenceSelect.setAttribute('required', 'required');
+        <button type="submit" class="btn-submit">Find My Roomie!</button>
+    </form>
+</div>
 
-            } else {
-                // Hide BOTH and reset BOTH
-                currentHostelGroup.classList.remove('visible-field');
-                currentHostelGroup.classList.add('hidden-field');
-                currentHostelSelect.removeAttribute('required');
-                currentHostelSelect.value = '';
+<script>
+function toggleHostelInput() {
+    const lookingFor = document.getElementById('lookingFor').value;
 
-                preferenceGroup.classList.remove('visible-field');
-                preferenceGroup.classList.add('hidden-field');
-                preferenceSelect.removeAttribute('required');
-                preferenceSelect.value = '';
-            }
-        }
-    </script>
+    const currentHostelGroup = document.getElementById('currentHostelGroup');
+    const currentHostelSelect = document.getElementById('currentHostel');
+
+    const preferenceGroup = document.getElementById('hostelPreferenceGroup');
+    const preferenceSelect = document.getElementById('hostelPreference');
+
+    if (lookingFor === 'Change Hostel') {
+        currentHostelGroup.classList.add('visible-field');
+        currentHostelGroup.classList.remove('hidden-field');
+        currentHostelSelect.setAttribute('required', 'required');
+
+        preferenceGroup.classList.add('visible-field');
+        preferenceGroup.classList.remove('hidden-field');
+        preferenceSelect.setAttribute('required', 'required');
+
+    } else {
+        currentHostelGroup.classList.add('hidden-field');
+        currentHostelGroup.classList.remove('visible-field');
+        currentHostelSelect.removeAttribute('required');
+        currentHostelSelect.value = '';
+
+        preferenceGroup.classList.add('hidden-field');
+        preferenceGroup.classList.remove('visible-field');
+        preferenceSelect.removeAttribute('required');
+        preferenceSelect.value = '';
+    }
+}
+</script>
+
 </body>
 </html>

@@ -1,10 +1,9 @@
-// backend/controllers/profileController.js
 const User = require("../models/User");
 const Profile = require("../models/Profile");
 const Preferences = require("../models/Preferences");
 
 // -----------------------------
-// Helper: convert multer file buffer to Base64
+// Convert multer file to Base64
 // -----------------------------
 function fileBufferToDataUrl(file) {
   if (!file || !file.mimetype || !file.buffer) return null;
@@ -13,10 +12,8 @@ function fileBufferToDataUrl(file) {
 
 // ------------------------------------------------------
 // POST /api/profile/update
-// Create or update profile
 // ------------------------------------------------------
 exports.updateProfile = async (req, res) => {
-  console.log("FILE RECEIVED:", req.file);
   try {
     const userId = req.user && (req.user._id || req.user.id);
     if (!userId) return res.status(401).json({ error: "Not authenticated" });
@@ -26,6 +23,7 @@ exports.updateProfile = async (req, res) => {
       birthDate,
       gender,
       course,
+      yearOfStudy,
       permanentAddress,
       contactNumber,
       instagramLink,
@@ -39,6 +37,7 @@ exports.updateProfile = async (req, res) => {
     if (birthDate) updateData.birthDate = new Date(birthDate);
     if (gender) updateData.gender = gender;
     if (course) updateData.course = course;
+    if (yearOfStudy) updateData.yearOfStudy = yearOfStudy; 
     if (permanentAddress) updateData.permanentAddress = permanentAddress;
     if (contactNumber) updateData.contactNumber = contactNumber;
     if (bio) updateData.bio = bio;
@@ -59,12 +58,8 @@ exports.updateProfile = async (req, res) => {
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
-    // Update User model reference
-    await User.findByIdAndUpdate(userId, { profile: profile._id }).catch(err => {
-      console.error("Warning: Failed to update User.profile reference:", err);
-    });
+    await User.findByIdAndUpdate(userId, { profile: profile._id });
 
-    // 🔥 Redirect to profile_view instead of showing JSON
     return res.redirect("/profile_view.html?updated=1");
 
   } catch (err) {
@@ -75,7 +70,6 @@ exports.updateProfile = async (req, res) => {
 
 // ------------------------------------------------------
 // GET /api/profile/me
-// Fetch logged-in user's profile
 // ------------------------------------------------------
 exports.getMyProfile = async (req, res) => {
   try {
@@ -108,25 +102,40 @@ exports.getMyProfile = async (req, res) => {
 
 // ------------------------------------------------------
 // POST /api/profile/preferences
-// Save user preferences
 // ------------------------------------------------------
 exports.savePreferences = async (req, res) => {
   try {
     const userId = req.user._id;
-    const data = req.body;
+
+    const {
+      lookingFor,
+      currentHostel,
+      hostelPreference,
+      genderPreference,
+      departmentPreference,
+      yearPreference,
+      seaterPreference,
+      hobbyPreference
+    } = req.body;
 
     let preferences = await Preferences.findOne({ user: userId });
-
     if (!preferences) {
       preferences = new Preferences({ user: userId });
     }
 
-    Object.assign(preferences, data);
-    await preferences.save();
+    preferences.lookingFor = lookingFor || "";
+    preferences.currentHostel = currentHostel || "";
+    preferences.hostelPreference = hostelPreference || "";
+    preferences.preferredGender = genderPreference || "";
+    preferences.department = departmentPreference || "";
+    preferences.yearOfStudy = yearPreference || "";
+    preferences.seaterType = seaterPreference || "";
+    preferences.hobbies = hobbyPreference ? [hobbyPreference] : [];
 
+    await preferences.save();
     await User.findByIdAndUpdate(userId, { preferences: preferences._id });
 
-    return res.redirect("/dashboard.html?preferencesSaved=1");
+    return res.redirect("/matches.html");
 
   } catch (err) {
     console.error("Save Preferences Error:", err);
@@ -136,38 +145,70 @@ exports.savePreferences = async (req, res) => {
 
 // ------------------------------------------------------
 // GET /api/profile/matches
-// Matching algorithm
 // ------------------------------------------------------
 exports.getMatches = async (req, res) => {
   try {
     const userId = req.user._id;
 
     const myProfile = await Profile.findOne({ user: userId }).lean();
-    const myPreferences = await Preferences.findOne({ user: userId }).lean();
+    const myPref = await Preferences.findOne({ user: userId }).lean();
 
-    if (!myPreferences) return res.json({ matches: [] });
-
-    const allProfiles = await Profile.find({ user: { $ne: userId } }).populate("user").lean();
+    const allProfiles = await Profile.find({ user: { $ne: userId } })
+      .populate("user")
+      .lean();
 
     const matches = [];
 
-    for (const profile of allProfiles) {
-      const pref = await Preferences.findOne({ user: profile.user._id }).lean();
-      if (!pref) continue;
+    // Helper to extract hobbies from bio
+    function extractHobbiesFromBio(bio) {
+      const keywords = ['reading','painting','drawing','dancing','writing','gossiping','editing','sleeping','resting','hiking','coding','coffee'];
+      const found = [];
+      const s = (bio||'').toLowerCase();
+      keywords.forEach(k => { if (s.includes(k)) found.push(k.charAt(0).toUpperCase()+k.slice(1)); });
+      return found;
+    }
+
+    for (const theirProfile of allProfiles) {
+      const theirPref = await Preferences.findOne({ user: theirProfile.user._id }).lean() || {};
 
       let score = 0;
 
-      if (myPreferences.preferredGender && profile.gender === myPreferences.preferredGender) score += 20;
-      if (myPreferences.department && pref.department === myPreferences.department) score += 10;
-      if (myPreferences.yearOfStudy && pref.yearOfStudy === myPreferences.yearOfStudy) score += 8;
-      if (myPreferences.seaterType && pref.seaterType === myPreferences.seaterType) score += 6;
+      if (myPref) {
+        // Gender preference
+        if (!myPref.preferredGender || myPref.preferredGender === theirProfile.gender) score += 20;
 
-      if (Array.isArray(myPreferences.hobbies) && Array.isArray(pref.hobbies)) {
-        const common = myPreferences.hobbies.filter(h => pref.hobbies.includes(h));
-        score += common.length * 5;
+        // Department
+        const theirDepartment = theirPref.department || theirProfile.course || "N/A";
+        if (myPref.department && myPref.department === theirDepartment) score += 20;
+
+        // Year of study
+        const theirYear = theirPref.yearOfStudy || "N/A";
+        if (myPref.yearOfStudy && myPref.yearOfStudy === theirYear) score += 15;
+
+        // Seater type
+        if (myPref.seaterType && myPref.seaterType === (theirPref.seaterType || theirProfile.seaterType)) score += 15;
+
+        // Hobbies overlap
+        const theirHobbies = (Array.isArray(theirPref.hobbies) && theirPref.hobbies.length)
+          ? theirPref.hobbies
+          : extractHobbiesFromBio(theirProfile.bio || "");
+        if (Array.isArray(myPref.hobbies)) {
+          const common = myPref.hobbies.filter(h => theirHobbies.includes(h));
+          score += common.length * 5;
+        }
       }
 
-      if (score >= 20) matches.push(profile);
+      matches.push({
+        id: theirProfile.user._id,
+        fullName: theirProfile.fullName || "Unknown",
+        profilePicture: theirProfile.profilePicture || "",
+        department: theirPref.department || theirProfile.course || "N/A",
+        yearOfStudy: theirPref.yearOfStudy || theirProfile.yearOfStudy || "N/A",
+        hobbies: (Array.isArray(theirPref.hobbies) && theirPref.hobbies.length)
+          ? theirPref.hobbies
+          : extractHobbiesFromBio(theirProfile.bio || ""),
+        matchScore: Math.min(score, 100)
+      });
     }
 
     return res.json({ matches });

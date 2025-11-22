@@ -1,793 +1,395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoomieRadar - Matches</title>
-    <!-- Use Tailwind CSS for a clean, responsive grid layout --><script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <style>
-        /* General Setup */
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #e75480; /* RoomieRadar Pink */
-            min-height: 100vh;
-            position: relative;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RoomieRadar - Matches</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    /* keep your original styling (kept concise) */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #e75480;
+      min-height: 100vh;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute; top: 0; left: 0; width:100%; height:100%;
+      background-image: linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
+      background-size: 80px 80px;
+      z-index: -1; pointer-events: none;
+    }
+    .matches-container { display:grid; gap:24px; padding:24px; max-width:1200px; margin:0 auto; z-index:1; }
+    @media (min-width:640px){ .matches-container{ grid-template-columns:repeat(2,1fr); } }
+    @media (min-width:1024px){ .matches-container{ grid-template-columns:repeat(3,1fr); } }
+    .match-card{ background:#f7ede1; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); overflow:hidden; transition:transform .3s, box-shadow .3s; }
+    .match-card:hover{ transform:translateY(-5px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
+    .card-image{ width:100%; height:200px; object-fit:cover; }
+    .card-info{ padding:16px; }
+    .card-info h3{ font-size:1.25rem; font-weight:700; color:#e75480; margin-bottom:8px; }
+    .detail-item{ display:flex; align-items:center; font-size:0.95rem; color:#4b5563; margin-bottom:6px; }
+    .detail-item i{ margin-right:8px; color:#8b5cf6; }
+    .hobbies-list{ margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb; }
+    .hobbies-list span{ display:inline-block; background:#fce7f3; color:#be185d; padding:4px 10px; border-radius:9999px; font-size:0.8rem; font-weight:500; margin-right:6px; margin-bottom:6px; }
+    .no-matches{ text-align:center; padding:50px; grid-column:1/-1; margin-top:50px; background:#f7ede1; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); z-index:1; }
+    .header{ background:#f7ede1; padding:1rem 1.5rem; box-shadow:0 2px 4px rgba(0,0,0,0.05); margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; z-index:1; }
+    .header-logo{ height:40px; width:auto; }
+    .spinner{ border:4px solid #f3f3f3; border-top:4px solid #e75480; border-radius:50%; width:40px; height:40px; animation:spin 2s linear infinite; margin:50px auto; z-index:1; }
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
 
-        /* Profile page grid overlay effect */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),
-                                 linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
-            background-size: 80px 80px;
-            z-index: -1; 
-            pointer-events: none; 
-        }
-
-        /* Container for the match cards */
-        .matches-container {
-            display: grid;
-            gap: 24px; 
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative; 
-            z-index: 1;
-        }
-        
-        /* Responsive Grid Layout */
-        @media (min-width: 640px) {
-            .matches-container {
-                grid-template-columns: repeat(2, 1fr); 
-            }
-        }
-        @media (min-width: 1024px) {
-            .matches-container {
-                grid-template-columns: repeat(3, 1fr); 
-            }
-        }
-
-        /* Card Styling */
-        .match-card {
-            background: #f7ede1;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .match-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 200px; 
-            object-fit: cover;
-        }
-        
-        .card-info {
-            padding: 16px;
-        }
-
-        .card-info h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #e75480; 
-            margin-bottom: 8px;
-        }
-
-        .card-info .detail-item {
-            display: flex;
-            align-items: center;
-            font-size: 0.95rem;
-            color: #4b5563; 
-            margin-bottom: 6px;
-        }
-
-        .card-info .detail-item i {
-            margin-right: 8px;
-            color: #8b5cf6; 
-        }
-
-        .hobbies-list {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .hobbies-list span {
-            display: inline-block;
-            background-color: #fce7f3; 
-            color: #be185d; 
-            padding: 4px 10px;
-            border-radius: 9999px; 
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-right: 6px;
-            margin-bottom: 6px;
-        }
-
-        .no-matches {
-            text-align: center;
-            padding: 50px;
-            grid-column: 1 / -1; 
-            margin-top: 50px;
-            background: #f7ede1;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            position: relative; 
-            z-index: 1;
-        }
-
-        .no-matches i {
-            font-size: 4em;
-            color: #e75480;
-            margin-bottom: 15px;
-        }
-        
-        /* Header style */
-        .header {
-            background: #f7ede1;
-            padding: 1rem 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative; 
-            z-index: 1;
-        }
-        
-        .header-logo {
-            height: 40px; 
-            width: auto; 
-        }
-        
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #e75480;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
-            margin: 50px auto;
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* ========================================
-        CHAT MODAL STYLES
-        ========================================
-        */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; /* High z-index to cover everything */
-            /* Blur effect */
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .chat-container-modal { 
-            width: 90%; 
-            max-width: 600px; 
-            height: 80vh; 
-            background: #f7ede1; 
-            border-radius: 15px; 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-        
-        .modal-overlay.visible .chat-container-modal {
-            transform: scale(1);
-        }
-
-        .chat-header { 
-            background: #e75480; 
-            color: white; 
-            padding: 15px; 
-            border-top-left-radius: 15px; 
-            border-top-right-radius: 15px; 
-            font-weight: 600; 
-            font-size: 1.2em; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-        }
-        .chat-header .back-btn {
-            cursor: pointer;
-            font-size: 1.5em;
-            margin-right: 10px;
-        }
-
-        .chat-messages { 
-            flex-grow: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            background: #f9f9f9;
-        }
-        .message { 
-            max-width: 70%; 
-            padding: 10px 15px; 
-            border-radius: 15px; 
-            line-height: 1.4; 
-        }
-        /* Using purple for sent messages to contrast with pink header */
-        .message.sent { 
-            background: #8b5cf6; 
-            color: white; 
-            align-self: flex-end; 
-            border-bottom-right-radius: 3px; 
-        }
-        .message.received { 
-            background: #eee; 
-            color: #333; 
-            align-self: flex-start; 
-            border-bottom-left-radius: 3px; 
-        }
-        .chat-input { 
-            display: flex; 
-            padding: 15px; 
-            border-top: 1px solid #eee; 
-            background: white;
-        }
-        .chat-input input { 
-            flex-grow: 1; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 20px; 
-            margin-right: 10px; 
-        }
-        .chat-input button { 
-            background: #e75480; 
-            color: white; 
-            border: none; 
-            border-radius: 50%; 
-            width: 40px; 
-            height: 40px; 
-            cursor: pointer; 
-            font-size: 1.2em; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    /* Chat modal */
+    .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:1000; backdrop-filter: blur(6px); opacity:0; visibility:hidden; transition:opacity .25s, visibility .25s; }
+    .modal-overlay.visible{ opacity:1; visibility:visible; }
+    .chat-container-modal{ width:90%; max-width:600px; height:80vh; background:#f7ede1; border-radius:15px; box-shadow:0 8px 30px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; transform:scale(.95); transition:transform .25s; }
+    .modal-overlay.visible .chat-container-modal{ transform:scale(1); }
+    .chat-header{ background:#e75480; color:white; padding:15px; font-weight:600; display:flex; align-items:center; justify-content:space-between; }
+    .chat-messages{ flex-grow:1; padding:15px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; background:#f9f9f9; }
+    .message{ max-width:70%; padding:10px 15px; border-radius:15px; line-height:1.4; }
+    .message.sent{ background:#8b5cf6; color:white; align-self:flex-end; border-bottom-right-radius:3px; }
+    .message.received{ background:#eee; color:#333; align-self:flex-start; border-bottom-left-radius:3px; }
+    .chat-input{ display:flex; padding:15px; border-top:1px solid #eee; background:white; }
+    .chat-input input{ flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:20px; margin-right:10px; }
+    .chat-input button{ background:#e75480; color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:1.2em; display:flex; align-items:center; justify-content:center; }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <!-- Replaced h1 with the logo image --><img src="/images/blogo.png" alt="RoomieRadar Logo" class="header-logo">
-        <a href="/preferences.html" class="px-4 py-2 text-sm font-semibold text-white bg-pink-500 rounded-lg shadow hover:bg-purple-600 transition duration-150">
-            <i class='bx bx-filter-alt'></i> Preferences
-        </a>
-    </div>
+  <div class="header">
+    <img src="/images/blogo.png" alt="RoomieRadar Logo" class="header-logo">
+    <a href="/preferences.html" class="px-4 py-2 text-sm font-semibold text-white bg-pink-500 rounded-lg shadow hover:bg-purple-600 transition duration-150">
+      <i class='bx bx-filter-alt'></i> Preferences
+    </a>
+  </div>
 
-    <div id="loading-spinner" class="spinner"></div>
+  <div id="loading-spinner" class="spinner"></div>
 
-    <div class="matches-container" id="card-container" style="display: none;">
-        <!-- Matches will be dynamically inserted here --></div>
+  <div class="matches-container" id="card-container" style="display:none;"></div>
 
-    <div class="no-matches" id="no-matches" style="display: none;">
-        <i class='bx bx-search'></i>
-        <p class="text-lg font-semibold">No more potential roomies for now. Check back later!</p>
-        <p class="text-sm text-gray-500 mt-2">Try adjusting your matching preferences.</p>
-    </div>
+  <div class="no-matches" id="no-matches" style="display:none;">
+    <i class='bx bx-search' style="font-size:48px;color:#e75480;"></i>
+    <p class="text-lg font-semibold">No more potential roomies for now. Check back later!</p>
+    <p class="text-sm text-gray-500 mt-2">Try adjusting your matching preferences.</p>
+  </div>
 
-    <!-- CHAT MODAL OVERLAY (Initially hidden) -->
-    <div id="chat-modal-overlay" class="modal-overlay">
-        <div class="chat-container-modal">
-            <div class="chat-header">
-                <!-- Back button to close the modal -->
-                <i class='bx bx-arrow-back back-btn' onclick="window.closeChatModal()"></i>
-                <span id="chat-recipient-name">Chatting with Match...</span>
-            </div>
-            <div class="chat-messages" id="chat-messages">
-                <!-- Chat messages will appear here -->
-            </div>
-            <div class="chat-input">
-                <input type="text" id="message-input" placeholder="Type a message...">
-                <button id="send-button"><i class='bx bx-send'></i></button>
-            </div>
+  <!-- CHAT MODAL -->
+  <div id="chat-modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="chat-container-modal" role="dialog" aria-modal="true" aria-labelledby="chat-recipient-name">
+      <div class="chat-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <i class='bx bx-arrow-back back-btn' style="cursor:pointer;font-size:18px;" onclick="closeChatModal()"></i>
+          <span id="chat-recipient-name">Chatting with...</span>
         </div>
+        <div></div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+
+      <div class="chat-input">
+        <input id="message-input" type="text" placeholder="Type a message..." autocomplete="off" />
+        <button id="send-button" aria-label="Send message"><i class='bx bx-send'></i></button>
+      </div>
     </div>
+  </div>
 
+  <!-- socket.io client (assumes server serves socket.io on same origin) -->
+  <script src="/socket.io/socket.io.js"></script>
 
-    <!-- Firebase and Chat Logic Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, getDocs, doc, onSnapshot, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <script>
+    // -------------------------
+    // Data + DOM refs
+    // -------------------------
+    const container = document.getElementById('card-container');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const noMatchesDiv = document.getElementById('no-matches');
 
-        // Set up the global Firebase variables
-        let db, auth;
-        let matches = [];
-        let userId = null;
-        let userPreferences = null; // Store fetched user preferences here
-        let unsubscribeMatches = null; // Listener for matches
-        let unsubscribeChat = null; // Listener for the current chat
-        let currentChatMatchId = null; // Track the current open chat
-        
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        const container = document.getElementById('card-container');
-        const noMatchesDiv = document.getElementById('no-matches');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        
-        // Chat Modal Elements
-        const chatModalOverlay = document.getElementById('chat-modal-overlay');
-        const recipientNameSpan = document.getElementById('chat-recipient-name');
-        const messagesDiv = document.getElementById('chat-messages');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
+    // Chat refs
+    const chatModalOverlay = document.getElementById('chat-modal-overlay');
+    const chatRecipientName = document.getElementById('chat-recipient-name');
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
 
+    let matches = [];
+    let currentUserId = null;           // logged-in user's profile.user id
+    let socket = null;
+    let currentChatMatchId = null;      // the userId of the match we're chatting with
+    let chatHistory = {};               // in-memory cache: { otherId: [ {text,type,ts} ] }
 
-        setLogLevel('Debug'); // Enable Firestore logging
+    // -------------------------
+    // Utilities
+    // -------------------------
+    function createMatchCard(match) {
+      const card = document.createElement('div');
+      card.className = 'match-card';
+      card.dataset.userId = match.id;
 
-        // ========================================
-        // CORE MATCHING LOGIC AND PREFERENCES
-        // ========================================
+      const hobbiesHtml = Array.isArray(match.hobbies) && match.hobbies.length
+        ? match.hobbies.map(h => `<span>${escapeHtml(h)}</span>`).join('')
+        : '<p class="text-gray-400">None listed</p>';
 
-        // MOCK USER PREFERENCES (If real data fetch fails or preferences haven't been set)
-        // These preferences will be compared against potential roommates' profiles.
-        const DEFAULT_PREFERENCES = {
-            genderPreference: 'Female', // Preference: 'Female', 'Male', or 'Any'
-            departmentPreference: 'Computer Science', // Preference: specific department or 'Any'
-            yearPreference: '4th Year', // Preference: '1st Year', '2nd Year', '3rd Year', '4th Year' or 'Any'
-            activityMatch: 'Reading', // Preference: A hobby/activity to match on
-        };
+      const matchScore = typeof match.matchScore === 'number' ? match.matchScore : 80;
+      const scoreColor = matchScore >= 75 ? 'bg-pink-100 text-pink-700' :
+                         matchScore >= 50 ? 'bg-purple-100 text-purple-700' :
+                         'bg-gray-100 text-gray-500';
 
-        // Mock Data for Demo (Only used if Firebase fails to initialize or provides no users)
-        // Added 'gender' property to mock data for matching criteria
-        const MOCK_MATCHES = [
-            {
-                id: 'user_1',
-                username: 'Vanshika',
-                profilePhoto: 'https://placehold.co/400x400/8b5cf6/ffffff?text=V',
-                department: 'SET',
-                year: '4th Year',
-                gender: 'Female',
-                hobbies: ['Gossiping', 'Reading'] // Match on 'Reading'
-            },
-            {
-                id: 'user_2',
-                username: 'Muskaan',
-                profilePhoto: 'https://placehold.co/400x400/f59e0b/ffffff?text=M',
-                department: 'SOD',
-                year: '3rd Year',
-                gender: 'Female',
-                hobbies: ['Editing'] // No match on 'Reading'
-            }
-        ];
-        
-        /**
-         * Calculates a match score percentage between a match profile and user preferences.
-         * The score is based on 4 criteria, giving a max of 4 points (100%).
-         */
-        function calculateMatchScore(match, preferences) {
-            if (!preferences) return 0; // Cannot calculate score without preferences
+      let imgSrc = match.profilePhoto || 'https://placehold.co/400x400/cccccc/333333?text=No+Image';
+      if (typeof imgSrc === 'string') imgSrc = imgSrc.trim();
 
-            let score = 0;
-            let maxPoints = 4; 
+      card.innerHTML = `
+        <img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(match.username || 'User')}'s Profile Photo" class="card-image"
+             onerror="this.onerror=null;this.src='https://placehold.co/400x400/cccccc/333333?text=No+Image'">
+        <div class="card-info">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3>${escapeHtml(match.username || 'Unknown User')}</h3>
+            <span class="text-xl font-bold p-2 px-3 rounded-full ${scoreColor} shadow-inner">${matchScore}%</span>
+          </div>
+          <div class="detail-item"><i class='bx bxs-school'></i><span>${escapeHtml(match.department || 'N/A')}</span></div>
+          <div class="detail-item"><i class='bx bx-calendar'></i><span>${escapeHtml(match.year || 'N/A')}</span></div>
+          <div class="hobbies-list"><p class="font-semibold text-gray-700 mb-2">Hobbies:</p>${hobbiesHtml}</div>
+          <button class="connect-btn w-full mt-4 py-2 font-semibold text-white bg-pink-500 rounded-lg shadow-md hover:bg-pink-600 transition duration-150 flex items-center justify-center" data-id="${escapeAttr(match.id)}" data-name="${escapeAttr(match.username || '')}">
+            <i class='bx bxs-chat mr-2'></i> Connect
+          </button>
+        </div>
+      `;
+      return card;
+    }
 
-            // 1. Gender Match
-            // Assumes 'Any' means a match, or if gender explicitly matches
-            if (preferences.genderPreference === 'Any' || preferences.genderPreference === match.gender) {
-                score += 1;
-            }
+    function renderMatches() {
+      loadingSpinner.style.display = 'none';
+      container.innerHTML = '';
 
-            // 2. Department Match
-            if (preferences.departmentPreference === 'Any' || preferences.departmentPreference === match.department) {
-                score += 1;
-            }
+      const displayMatches = matches;
 
-            // 3. Year Match
-            if (preferences.yearPreference === 'Any' || preferences.yearPreference === match.year) {
-                score += 1;
-            }
+      if (!displayMatches.length) {
+        container.style.display = 'none';
+        noMatchesDiv.style.display = 'block';
+        return;
+      }
 
-            // 4. Activity Match (Hobby/Activity)
-            // Checks if the potential match's hobbies array contains the user's preferred activity
-            if (Array.isArray(match.hobbies) && match.hobbies.includes(preferences.activityMatch)) {
-                score += 1;
-            }
+      container.style.display = 'grid';
+      noMatchesDiv.style.display = 'none';
 
-            // Convert score to percentage
-            const percentage = (score / maxPoints) * 100;
-            return Math.round(percentage); 
-        }
+      displayMatches.sort((a,b) => (b.matchScore || 0) - (a.matchScore || 0));
+      displayMatches.forEach(m => container.appendChild(createMatchCard(m)));
 
-        // ========================================
-        // UI & RENDERING FUNCTIONS
-        // ========================================
-
-        // Function to create an HTML card for a match
-        function createMatchCard(match) {
-            const card = document.createElement('div');
-            card.className = 'match-card';
-            card.dataset.userId = match.id;
-            
-            const hobbiesHtml = Array.isArray(match.hobbies) && match.hobbies.length > 0
-                ? match.hobbies.map(h => `<span>${h}</span>`).join('')
-                : '<p class="text-gray-400">None listed</p>';
-
-            // Using the match.matchScore property added in the listener
-            const matchScore = match.matchScore !== undefined ? match.matchScore : 0;
-            const scoreColor = matchScore >= 75 ? 'bg-pink-100 text-pink-700' : 
-                               matchScore >= 50 ? 'bg-purple-100 text-purple-700' : 
-                                                  'bg-gray-100 text-gray-500';
-
-            card.innerHTML = `
-                <img src="${match.profilePhoto || 'https://placehold.co/400x400/cccccc/333333?text=No+Image'}" 
-                    alt="${match.username}'s Profile Photo" 
-                    class="card-image" 
-                    onerror="this.onerror=null; this.src='https://placehold.co/400x400/cccccc/333333?text=No+Image';">
-                <div class="card-info">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3>${match.username || 'Unknown User'}</h3>
-                        <span class="text-xl font-bold p-2 px-3 rounded-full ${scoreColor} shadow-inner">${matchScore}%</span>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <i class='bx bxs-school'></i>
-                        <span>${match.department || 'N/A'}</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <i class='bx bx-calendar'></i>
-                        <span>${match.year || 'N/A'}</span>
-                    </div>
-
-                    <div class="hobbies-list">
-                        <p class="font-semibold text-gray-700 mb-2">Hobbies:</p>
-                        ${hobbiesHtml}
-                    </div>
-
-                    <!-- Action Button: Connect/Chat -->
-                    <button onclick="window.openChatModal('${match.id}', '${match.username}')" 
-                            class="w-full mt-4 py-2 font-semibold text-white bg-pink-500 rounded-lg shadow-md hover:bg-pink-600 transition duration-150 flex items-center justify-center">
-                        <i class='bx bxs-chat mr-2'></i> Connect
-                    </button>
-                </div>
-            `;
-            return card;
-        }
-
-        // Function to render all match cards
-        function renderMatches() {
-            loadingSpinner.style.display = 'none';
-            container.innerHTML = ''; // Clear previous content
-
-            // Only display matches with a score > 0
-            const displayMatches = matches.filter(match => match.matchScore > 0);
-
-            if (displayMatches.length === 0) {
-                container.style.display = 'none';
-                noMatchesDiv.style.display = 'block';
-                return;
-            }
-
-            container.style.display = 'grid';
-            noMatchesDiv.style.display = 'none';
-
-            // Sort matches by matchScore descending (highest score first)
-            displayMatches.sort((a, b) => b.matchScore - a.matchScore);
-
-            displayMatches.forEach(match => {
-                const card = createMatchCard(match);
-                container.appendChild(card);
-            });
-        }
-        
-        /**
-         * Fetches the current user's preferences from their private path.
-         */
-        async function fetchCurrentUserPreferences(uid) {
-            try {
-                // Path for private preferences: /artifacts/{appId}/users/{userId}/preferences/user_prefs
-                const prefsDocRef = doc(db, `artifacts/${appId}/users/${uid}/preferences/user_prefs`);
-                const prefsDoc = await getDoc(prefsDocRef);
-
-                if (prefsDoc.exists()) {
-                    userPreferences = prefsDoc.data();
-                    console.log("Fetched user preferences:", userPreferences);
-                } else {
-                    console.log("No preferences found. Using default mock preferences.");
-                    userPreferences = DEFAULT_PREFERENCES;
-                }
-            } catch (error) {
-                console.error("Error fetching user preferences:", error);
-                // Fallback to default preferences on error
-                userPreferences = DEFAULT_PREFERENCES;
-            }
-        }
-
-        // Sets up a real-time listener for matches from a public collection
-        async function setupMatchesListener() {
-            if (!db || !userId) {
-                console.warn('Cannot setup matches listener: Firestore or User ID not ready. Using mock data.');
-                matches = MOCK_MATCHES.map(match => ({
-                     ...match,
-                     matchScore: calculateMatchScore(match, DEFAULT_PREFERENCES)
-                }));
-                renderMatches();
-                return;
-            }
-            
-            // 1. Ensure user preferences are loaded before listening for matches
-            await fetchCurrentUserPreferences(userId); 
-
-            // Unsubscribe previous listener if it exists
-            if (unsubscribeMatches) {
-                unsubscribeMatches();
-            }
-
-            loadingSpinner.style.display = 'block';
-            container.style.display = 'none';
-            noMatchesDiv.style.display = 'none';
-
-            // Path for public data: /artifacts/{appId}/public/data/users
-            const matchesCollectionRef = collection(db, `artifacts/${appId}/public/data/users`);
-            
-            // Listen for changes in the 'users' collection (potential matches)
-            unsubscribeMatches = onSnapshot(matchesCollectionRef, (snapshot) => {
-                let newMatches = [];
-                snapshot.forEach(doc => {
-                    const matchData = doc.data();
-                    
-                    // Exclude the current user from their own matches list
-                    if (doc.id !== userId) {
-                        const potentialMatch = {
-                            id: doc.id,
-                            // Ensure structure is available for matching logic
-                            username: matchData.username || `User ${doc.id.substring(0, 4)}`,
-                            department: matchData.department || matchData.course || 'Unknown Dept',
-                            year: matchData.year || 'N/A',
-                            gender: matchData.gender || 'Any', // Default to 'Any' if not provided
-                            hobbies: matchData.hobbies || [],
-                            profilePhoto: matchData.profilePhoto || null,
-                        };
-
-                        // CRITICAL: Calculate match score using the user's preferences
-                        const score = calculateMatchScore(potentialMatch, userPreferences);
-                        
-                        // Add to list only if there is a score > 0 (or just add all and filter later)
-                        potentialMatch.matchScore = score;
-                        newMatches.push(potentialMatch);
-                    }
-                });
-                
-                // If the real collection is empty, fall back to mock data
-                if (newMatches.length === 0) {
-                     // Add mock data with calculated score using real preferences (if available)
-                    matches = MOCK_MATCHES.map(match => ({
-                        ...match,
-                        matchScore: calculateMatchScore(match, userPreferences || DEFAULT_PREFERENCES)
-                    }));
-                } else {
-                    matches = newMatches;
-                }
-                
-                renderMatches();
-            }, (error) => {
-                console.error("Error setting up matches listener:", error);
-                // Fallback to mock data on error
-                matches = MOCK_MATCHES.map(match => ({
-                     ...match,
-                     matchScore: calculateMatchScore(match, userPreferences || DEFAULT_PREFERENCES)
-                }));
-                renderMatches();
-            });
-        }
-
-
-        // ========================================
-        // CHAT MODAL FUNCTIONS 
-        // ========================================
-
-        // Helper function to get a consistent chat ID between two users
-        function getChatId(user1Id, user2Id) {
-            // Firestore chat ID is determined by sorting the two user IDs
-            return [user1Id, user2Id].sort().join('_');
-        }
-
-        // Function to append message to the chat
-        function appendMessage(messageText, type) {
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${type}`;
-            messageElement.textContent = messageText;
-            messagesDiv.appendChild(messageElement);
-            // Scroll to bottom
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        // Sets up a real-time listener for the chat messages
-        function setupChatListener(matchId, username) {
-            if (!db || !userId) {
-                appendMessage("System: Chat offline. Firestore or User ID not ready.", 'received');
-                return;
-            }
-            
-            // Unsubscribe previous chat listener
-            if (unsubscribeChat) {
-                unsubscribeChat();
-            }
-            
-            const chatId = getChatId(userId, matchId);
-            
-            // Path for public data: /artifacts/{appId}/public/data/chats/{chatId}/messages
-            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatId}/messages`);
-
-            // Listen for changes in the messages sub-collection
-            unsubscribeChat = onSnapshot(messagesCollectionRef, (snapshot) => {
-                messagesDiv.innerHTML = ''; // Clear existing messages
-                snapshot.docs
-                    // In-memory sort since Firestore orderBy is restricted
-                    .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .sort((a, b) => a.timestamp - b.timestamp) 
-                    .forEach(message => {
-                        const type = message.senderId === userId ? 'sent' : 'received';
-                        appendMessage(message.text, type);
-                    });
-                
-                if (snapshot.empty) {
-                     appendMessage(`System: Say hello to ${username}!`, 'received');
-                }
-            }, (error) => {
-                console.error("Error setting up chat listener:", error);
-                appendMessage("System: Failed to load chat history.", 'received');
-            });
-        }
-
-
-        // Open the chat modal and set up the chat context
-        window.openChatModal = function(matchId, username) {
-            currentChatMatchId = matchId;
-            recipientNameSpan.textContent = `Chatting with ${username}`;
-            
-            // Setup real-time chat listener
-            setupChatListener(matchId, username);
-            
-            // Show the modal
-            chatModalOverlay.classList.add('visible');
-            messageInput.focus();
-        }
-
-        // Close the chat modal
-        window.closeChatModal = function() {
-            chatModalOverlay.classList.remove('visible');
-            currentChatMatchId = null;
-            // Unsubscribe the chat listener when the modal is closed
-            if (unsubscribeChat) {
-                unsubscribeChat();
-                unsubscribeChat = null;
-            }
-            // Clear input and messages just in case
-            messagesDiv.innerHTML = '';
-            messageInput.value = '';
-        }
-
-        // Handle sending a message (Firestore integration)
-        async function sendMessage() {
-            const messageText = messageInput.value.trim();
-            if (!messageText || !currentChatMatchId || !userId || !db) {
-                return; 
-            }
-            
-            const chatId = getChatId(userId, currentChatMatchId);
-            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatId}/messages`);
-            
-            const newMessage = {
-                text: messageText,
-                senderId: userId,
-                // Using a simple number timestamp for in-memory sorting
-                timestamp: Date.now(), 
-                read: false 
-            };
-            
-            try {
-                // Add the document (message) to the chat collection
-                await addDoc(messagesCollectionRef, newMessage);
-                messageInput.value = ''; // Clear input on successful send
-            } catch (e) {
-                console.error("Error sending message:", e);
-                // Inform the user in the chat box itself
-                appendMessage("System: Failed to send message. Please check connection.", 'received');
-            }
-        }
-
-        // Event listeners for the chat input outside the card loop
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent new line in input
-                sendMessage();
-            }
+      // attach connect handlers
+      document.querySelectorAll('.connect-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          const name = e.currentTarget.dataset.name;
+          openChatModal(id, name);
         });
-        
-        // Allow clicking anywhere on the overlay (but not the chat box) to close the modal
-        chatModalOverlay.addEventListener('click', (e) => {
-            if (e.target === chatModalOverlay) {
-                window.closeChatModal();
-            }
-        });
+      });
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
+
+    // -------------------------
+    // Backend fetch helpers
+    // -------------------------
+    async function fetchCurrentUser() {
+      try {
+        const res = await fetch('/api/profile/me', { credentials: 'include' });
+        if (!res.ok) throw new Error('Not authenticated or failed to fetch profile');
+        const data = await res.json();
+        // Expect backend profile record to include `user` (ObjectId string) or `userId`
+        currentUserId = data.user || data.userId || (data._id ? data._id : null);
+        return data;
+      } catch (err) {
+        console.warn('Failed to fetch current profile:', err);
+        return null;
+      }
+    }
+
+    async function fetchMatchesFromBackend() {
+      try {
+        const res = await fetch('/api/profile/matches', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to load matches from backend');
+        const payload = await res.json();
+        const profiles = payload.matches || [];
+
+        matches = profiles.map(p => ({
+        id: p.id,                                        // user ID
+        username: p.fullName || 'Unknown',
+        department: p.department || 'N/A',               // correct
+        year: p.yearOfStudy || 'N/A',                    // correct
+        hobbies: Array.isArray(p.hobbies) ? p.hobbies : [],
+        profilePhoto: p.profilePicture || '',
+        matchScore: p.matchScore ?? 0                    // correct score
+      }));
 
 
-        // Initialize Firebase and Auth
-        async function initializeAppAndAuth() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
+        renderMatches();
+      } catch (err) {
+        console.error('Error loading matches:', err);
+        loadingSpinner.style.display = 'none';
+        noMatchesDiv.style.display = 'block';
+      }
+    }
 
-                // Sign in first
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // Wait for auth state to be confirmed
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("Authenticated with user ID:", userId);
-                    } else {
-                        // If auth fails, userId will be null, and listeners will use mock data
-                        console.log("User signed out or failed auth. Using default ID.");
-                    }
-                    // Start the real-time listener for matches here
-                    setupMatchesListener();
-                });
+    function extractHobbiesFromBio(bio) {
+      const keywords = ['reading','painting','drawing','dancing','writing','gossiping','editing','sleeping','resting','hiking','coding','coffee'];
+      const found = [];
+      const s = (bio||'').toLowerCase();
+      keywords.forEach(k => { if (s.includes(k)) found.push(capitalize(k)); });
+      return found;
+    }
+    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
-            } catch (error) {
-                console.error('Firebase initialization or authentication failed:', error);
-                // Fallback to mock data if initialization completely fails
-                matches = MOCK_MATCHES.map(match => ({
-                     ...match,
-                     matchScore: calculateMatchScore(match, DEFAULT_PREFERENCES)
-                }));
-                renderMatches();
-            }
+    // -------------------------
+    // Chat history persistence & Socket.IO
+    // -------------------------
+    function setupSocketIo() {
+      try {
+        socket = io(); // same origin
+      } catch (e) {
+        console.warn('Socket.IO client not available:', e);
+        socket = null;
+      }
+
+      if (!socket) return;
+
+      socket.on('connect', () => {
+        console.log('Socket connected', socket.id);
+        if (currentUserId) socket.emit('registerUser', currentUserId);
+      });
+
+      // incoming private message saved by server and forwarded to recipient
+      socket.on('newMessage', ({ senderId, message, timestamp }) => {
+        if (!senderId) return;
+        if (!chatHistory[senderId]) chatHistory[senderId] = [];
+        chatHistory[senderId].push({ text: message, type: 'received', ts: timestamp || Date.now() });
+
+        // if modal currently open for that sender, append live
+        if (currentChatMatchId === senderId) appendMessageToModal(message, 'received');
+      });
+
+      socket.on('messageSent', ({ message }) => {
+        // ack - nothing necessary; local UI already appended
+        console.debug('messageSent ack', message);
+      });
+
+      socket.on('error', e => console.error('Socket error', e));
+      socket.on('disconnect', () => console.log('Socket disconnected'));
+    }
+
+    // compute chatId same way server uses: sorted join
+    function computeChatId(a,b){ return [String(a), String(b)].sort().join('_'); }
+
+    // load chat history from backend for a given otherId
+    async function loadChatHistory(otherId) {
+      try {
+        const res = await fetch(`/api/chat/${encodeURIComponent(otherId)}`, { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to load chat history');
+        const msgs = await res.json();
+        // normalize to local format and cache
+        chatHistory[otherId] = (msgs || []).map(m => ({
+          text: m.text,
+          type: (String(m.senderId) === String(currentUserId)) ? 'sent' : 'received',
+          ts: new Date(m.timestamp).getTime()
+        }));
+      } catch (err) {
+        console.warn('No chat history or failed to fetch:', err);
+        chatHistory[otherId] = chatHistory[otherId] || [];
+      }
+    }
+
+    // -------------------------
+    // Chat modal actions
+    // -------------------------
+    async function openChatModal(matchId, username) {
+      currentChatMatchId = matchId;
+      chatRecipientName.textContent = `Chatting with ${username || 'Match'}`;
+      chatModalOverlay.classList.add('visible');
+
+      // Ensure history present (fetch from backend)
+      if (!chatHistory[matchId] || chatHistory[matchId].length === 0) {
+        await loadChatHistory(matchId);
+      }
+
+      chatMessages.innerHTML = '';
+      (chatHistory[matchId] || []).forEach(m => appendMessageToModal(m.text, m.type));
+      messageInput.focus();
+    }
+
+    function closeChatModal() {
+      chatModalOverlay.classList.remove('visible');
+      currentChatMatchId = null;
+      chatMessages.innerHTML = '';
+      messageInput.value = '';
+    }
+
+    function appendMessageToModal(text, type) {
+      const el = document.createElement('div');
+      el.className = `message ${type === 'sent' ? 'sent' : 'received'}`;
+      el.textContent = text;
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text || !currentChatMatchId) return;
+
+      // optimistic UI
+      if (!chatHistory[currentChatMatchId]) chatHistory[currentChatMatchId] = [];
+      chatHistory[currentChatMatchId].push({ text, type: 'sent', ts: Date.now() });
+      appendMessageToModal(text, 'sent');
+      messageInput.value = '';
+
+      // send via socket
+      if (socket && socket.connected) {
+        socket.emit('privateMessage', { recipientId: currentChatMatchId, message: text });
+      } else {
+        // as fallback, POST to backend endpoint to save message (if you implement it)
+        try {
+          await fetch('/api/chat/send', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipientId: currentChatMatchId, message: text })
+          });
+        } catch (e) {
+          console.warn('Fallback message save failed', e);
         }
+      }
+    }
 
-        document.addEventListener('DOMContentLoaded', initializeAppAndAuth);
-    </script>
+    // keyboard & button handlers
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    chatModalOverlay.addEventListener('click', (e) => {
+      if (e.target === chatModalOverlay) closeChatModal();
+    });
+
+    // -------------------------
+    // Boot sequence
+    // -------------------------
+    (async function boot() {
+      loadingSpinner.style.display = 'block';
+      container.style.display = 'none';
+      noMatchesDiv.style.display = 'none';
+
+      // fetch current user profile so we can register socket with server
+      await fetchCurrentUser();
+
+      // setup socket.io (server will accept registerUser)
+      setupSocketIo();
+
+      // fetch matches from backend, backend includes matchScore
+      await fetchMatchesFromBackend();
+
+      loadingSpinner.style.display = 'none';
+    })();
+  </script>
 </body>
 </html>

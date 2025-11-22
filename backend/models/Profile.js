@@ -27,6 +27,8 @@ const ProfileSchema = new mongoose.Schema(
 
     course: { type: String, default: "" },
 
+    yearOfStudy: { type: String, default: "" },
+
     permanentAddress: { type: String, default: "" },
 
     contactNumber: { type: String, default: "" },
